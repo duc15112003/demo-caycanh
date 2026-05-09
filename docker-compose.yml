@@ -47,6 +47,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/caycanhdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+      APP_JWT_COOKIE_DOMAIN: caycanhvn.click
+      APP_JWT_COOKIE_SECURE: "true"
+      APP_AUTH_RESET_PASSWORD_URL: https://caycanhvn.click/reset-password
+      APP_AUTH_OAUTH2_REDIRECT_URL: https://caycanhvn.click
+      VNPAY_VNP_RETURNURL: https://caycanhvn.click/payment/vnpay-return
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI: https://caycanhvn.click/login/oauth2/code/google
     ports:
       - "8080:8080"
     depends_on:
@@ -63,7 +69,7 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 3000
-      REACT_APP_API_BASE_URL: http://160.250.181.24:8080/api
+      REACT_APP_API_BASE_URL: /api
       CHOKIDAR_USEPOLLING: "true"
     ports:
       - "3000:3000"
