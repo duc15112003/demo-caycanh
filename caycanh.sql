@@ -159,8 +159,8 @@ INSERT INTO public.categories (categoryid, categoryname, description, icon) VALU
     (2, 'Chậu Trồng Cây', 'Chậu cảnh với nhiều kích thước và chất liệu', 'plant-icon.png'),
     (3, 'Phụ Kiện Chăm Sóc', 'Dụng cụ và vật liệu chăm sóc cây cảnh', 'plant-icon.png');
 INSERT INTO public.users (userid, fullname, email, password, phone, address, role, enabled, createdat) VALUES
-    (1, 'Admin', 'baohuynhgiasvien@gmail.com', '123', NULL, NULL, 'ADMIN', TRUE, '2026-04-03 06:32:52.628397'),
-    (2, 'User 1', 'huynhgiabao24112005@gmail.com', '2411', NULL, NULL, 'USER', TRUE, '2026-04-03 06:32:52.628397');
+    (1, 'Admin', 'baohuynhgiasvien@gmail.com', '$2a$12$.sxlksf6eIUc1PhvY1dIH.5LJejtEpZ26UjKjGDeHGyaS93l4ZyZq', NULL, NULL, 'ADMIN', TRUE, '2026-04-03 06:32:52.628397'),
+    (2, 'User 1', 'huynhgiabao24112005@gmail.com', '$2a$12$.sxlksf6eIUc1PhvY1dIH.5LJejtEpZ26UjKjGDeHGyaS93l4ZyZq', NULL, NULL, 'USER', TRUE, '2026-04-03 06:32:52.628397');
 INSERT INTO public.products (productid, categoryid, productname, description, careguide, price, stock, image, isactive, createdat) VALUES
     (1, 1, 'Cây Kim Tiền', 'Cây tài lộc phong thủy thu hút may mắn.', 'Đặt nơi sáng vừa, tưới 1 tuần/lần', 150000.00, 50, 'kimtien.jpg', TRUE, '2026-04-03 06:32:52.628397'),
     (2, 1, 'Cây Lưỡi Hổ', 'Lọc không khí hiệu quả, dễ trồng.', 'Ít tưới nước, tránh úng', 120000.00, 40, 'luoiho.jpg', TRUE, '2026-04-03 06:32:52.628397'),
