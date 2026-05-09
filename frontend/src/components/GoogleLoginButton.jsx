@@ -1,7 +1,5 @@
 import React from "react";
-
-const API_ORIGIN =
-  process.env.REACT_APP_API_BASE_URL?.replace(/\/api\/?$/, "") || "http://localhost:8080";
+import { API_ORIGIN } from "../config/apiConfig";
 
 const GoogleLoginButton = ({ disabled = false, className = "" }) => {
   const handleClick = () => {

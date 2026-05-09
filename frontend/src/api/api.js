@@ -1,4 +1,3 @@
-const API = "http://160.250.181.24:8080/api";
-//const API = "http://localhost:8080/api";
+import { API_BASE_URL } from '../config/apiConfig';
 
-export default API;
+export default API_BASE_URL;

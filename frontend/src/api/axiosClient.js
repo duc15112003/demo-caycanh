@@ -2,8 +2,7 @@ import axios from 'axios';
 import store from '../redux/store';
 import { parseApiErrorDetails } from '../utils/errorCodes';
 import { logoutSuccess } from '../redux/slices/authSlice';
-
-const API_BASE_URL = "http://localhost:8080/api";
+import { API_BASE_URL } from '../config/apiConfig';
 
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
