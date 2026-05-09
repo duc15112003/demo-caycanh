@@ -1,8 +1,12 @@
 package ceb.controller;
 
+import java.time.Duration;
+
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +38,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @Validated
@@ -153,7 +158,26 @@ public class AuthController {
             }
         }
 
+        SecurityContextHolder.clearContext();
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookieService.clearAccessTokenCookie());
+        response.addHeader(HttpHeaders.SET_COOKIE, clearSessionCookie(request));
         return new LogoutResponse("Dang xuat thanh cong");
+    }
+
+    private String clearSessionCookie(HttpServletRequest request) {
+        String contextPath = request.getContextPath();
+        String cookiePath = (contextPath == null || contextPath.isBlank()) ? "/" : contextPath;
+
+        return ResponseCookie.from("JSESSIONID", "")
+                .httpOnly(true)
+                .path(cookiePath)
+                .maxAge(Duration.ZERO)
+                .build()
+                .toString();
     }
 }

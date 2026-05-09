@@ -31,6 +31,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,9 +75,18 @@ class AuthAdminExceptionControllerTest {
 
         MockHttpServletRequest logoutRequest = new MockHttpServletRequest();
         logoutRequest.setCookies(new Cookie("access_token", "jwt"));
+        MockHttpSession session = new MockHttpSession();
+        logoutRequest.setSession(session);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("a@example.com", null));
         MockHttpServletResponse logoutResponse = new MockHttpServletResponse();
         assertThat(controller.logout(logoutRequest, logoutResponse).getMessage()).contains("Dang xuat");
         verify(authService).logout("jwt");
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        assertThat(session.isInvalid()).isTrue();
+        assertThat(logoutResponse.getHeaders(HttpHeaders.SET_COOKIE))
+                .anySatisfy(header -> assertThat(header).contains("access_token=", "Max-Age=0"))
+                .anySatisfy(header -> assertThat(header).contains("JSESSIONID=", "Max-Age=0", "Path=/"));
     }
 
     @Test

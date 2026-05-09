@@ -2,6 +2,8 @@ import axios from 'axios';
 import { API_BASE_URL } from '../constants/config.js';
 import { errorMap } from '../constants/errorMap.js';
 
+const ADMIN_LOGGED_OUT_KEY = 'adminLoggedOut';
+
 function normalizeOrderStatus(status) {
   const raw = (status || '').toString().trim().toLowerCase();
   if (raw === 'cancel' || raw === 'canceled') return 'cancelled';
@@ -54,6 +56,13 @@ class ApiService {
   }
 
   setupInterceptors() {
+    this.api.interceptors.request.use((config) => {
+      if (this.isLoggedOut() && this.isProtectedAdminRequest(config)) {
+        return Promise.reject(new Error('Phiên quản trị đã đăng xuất. Vui lòng đăng nhập lại.'));
+      }
+      return config;
+    });
+
     this.api.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -61,8 +70,7 @@ class ApiService {
           const status = error.response.status;
           switch (status) {
             case 401:
-              localStorage.removeItem('authToken');
-              localStorage.removeItem('isAuthenticated');
+              this.markLoggedOut();
               window.dispatchEvent(new Event('auth:changed'));
               if (window.location.pathname !== '/login') {
                 window.location.href = '/login';
@@ -83,6 +91,32 @@ class ApiService {
     );
   }
 
+  isLoggedOut() {
+    return localStorage.getItem(ADMIN_LOGGED_OUT_KEY) === 'true';
+  }
+
+  markLoggedOut() {
+    localStorage.setItem(ADMIN_LOGGED_OUT_KEY, 'true');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('isAuthenticated');
+  }
+
+  clearLoggedOut() {
+    localStorage.removeItem(ADMIN_LOGGED_OUT_KEY);
+  }
+
+  isProtectedAdminRequest(config) {
+    const url = String(config?.url || '');
+    const method = String(config?.method || 'get').toLowerCase();
+
+    if (url === '/auth/login') return false;
+    if (url === '/auth/logout') return false;
+    if (url === '/user/me') return true;
+    if (url.startsWith('/admin')) return true;
+
+    return method !== 'get' && url.startsWith('/user');
+  }
+
   async request(config) {
     try {
       const response = await this.api.request(config);
@@ -96,18 +130,42 @@ class ApiService {
   }
 
   async login(email, password) {
-    return this.request({
+    const response = await this.request({
       method: 'POST',
       url: '/auth/login',
       data: { email, password },
     });
+    this.clearLoggedOut();
+    return response;
   }
 
   async logout() {
-    return this.request({
+    const response = await this.request({
       method: 'POST',
       url: '/auth/logout',
     });
+
+    try {
+      await this.api.request({
+        method: 'GET',
+        url: '/user/me',
+        headers: {
+          'Cache-Control': 'no-cache',
+          Pragma: 'no-cache',
+        },
+      });
+      throw new Error('Backend vẫn còn phiên đăng nhập sau logout. Kiểm tra Set-Cookie xoá access_token.');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        return response;
+      }
+      if (error instanceof Error && error.message.includes('Backend vẫn còn phiên đăng nhập')) {
+        throw error;
+      }
+      return response;
+    } finally {
+      this.markLoggedOut();
+    }
   }
 
   async getMe() {
@@ -118,6 +176,10 @@ class ApiService {
   }
 
   async verifySession() {
+    if (this.isLoggedOut()) {
+      return { authenticated: false, user: null };
+    }
+
     try {
       const me = await this.getMe();
       return { authenticated: true, user: me };
