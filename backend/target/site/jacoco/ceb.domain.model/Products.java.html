@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Products.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.domain.model</a> &gt; <span class="el_source">Products.java</span></div><h1>Products.java</h1><pre class="source lang-java linenums">package ceb.domain.model;
+
+import java.util.Date;
+public class Products {
+
+    private Integer productId;
+    private Integer categoryId;
+    private String productName;
+    private String description;
+    private String careGuide;
+    private double price;
+    private int stock;
+    private String image;
+    private boolean active;
+    private Date createdAt;
+
+<span class="fc" id="L17">    public Products() {}</span>
+
+    public Products(Integer productId, Integer categoryId, String productName, String description,
+                    String careGuide, double price, int stock, String image,
+<span class="nc" id="L21">                    boolean active, Date createdAt) {</span>
+<span class="nc" id="L22">        this.productId = productId;</span>
+<span class="nc" id="L23">        this.categoryId = categoryId;</span>
+<span class="nc" id="L24">        this.productName = productName;</span>
+<span class="nc" id="L25">        this.description = description;</span>
+<span class="nc" id="L26">        this.careGuide = careGuide;</span>
+<span class="nc" id="L27">        this.price = price;</span>
+<span class="nc" id="L28">        this.stock = stock;</span>
+<span class="nc" id="L29">        this.image = image;</span>
+<span class="nc" id="L30">        this.active = active;</span>
+<span class="nc" id="L31">        this.createdAt = createdAt;</span>
+<span class="nc" id="L32">    }</span>
+
+    public Integer getProductId() {
+<span class="fc" id="L35">        return productId;</span>
+    }
+
+    public void setProductId(Integer productId) {
+<span class="fc" id="L39">        this.productId = productId;</span>
+<span class="fc" id="L40">    }</span>
+
+    public Integer getCategoryId() {
+<span class="fc" id="L43">        return categoryId;</span>
+    }
+
+    public void setCategoryId(Integer categoryId) {
+<span class="fc" id="L47">        this.categoryId = categoryId;</span>
+<span class="fc" id="L48">    }</span>
+
+    public String getProductName() {
+<span class="fc" id="L51">        return productName;</span>
+    }
+
+    public void setProductName(String productName) {
+<span class="fc" id="L55">        this.productName = productName;</span>
+<span class="fc" id="L56">    }</span>
+
+    public String getDescription() {
+<span class="fc" id="L59">        return description;</span>
+    }
+
+    public void setDescription(String description) {
+<span class="fc" id="L63">        this.description = description;</span>
+<span class="fc" id="L64">    }</span>
+
+    public String getCareGuide() {
+<span class="fc" id="L67">        return careGuide;</span>
+    }
+
+    public void setCareGuide(String careGuide) {
+<span class="fc" id="L71">        this.careGuide = careGuide;</span>
+<span class="fc" id="L72">    }</span>
+
+    public double getPrice() {
+<span class="fc" id="L75">        return price;</span>
+    }
+
+    public void setPrice(double price) {
+<span class="fc" id="L79">        this.price = price;</span>
+<span class="fc" id="L80">    }</span>
+
+    public int getStock() {
+<span class="fc" id="L83">        return stock;</span>
+    }
+
+    public void setStock(int stock) {
+<span class="fc" id="L87">        this.stock = stock;</span>
+<span class="fc" id="L88">    }</span>
+
+    public String getImage() {
+<span class="fc" id="L91">        return image;</span>
+    }
+
+    public void setImage(String image) {
+<span class="fc" id="L95">        this.image = image;</span>
+<span class="fc" id="L96">    }</span>
+
+    public boolean isActive() {
+<span class="fc" id="L99">        return active;</span>
+    }
+
+    public void setActive(boolean active) {
+<span class="fc" id="L103">        this.active = active;</span>
+<span class="fc" id="L104">    }</span>
+
+    public Date getCreatedAt() {
+<span class="fc" id="L107">        return createdAt;</span>
+    }
+
+    public void setCreatedAt(Date createdAt) {
+<span class="fc" id="L111">        this.createdAt = createdAt;</span>
+<span class="fc" id="L112">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

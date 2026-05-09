@@ -1,0 +1,346 @@
+/* CSS cho Footer */
+.main-footer {
+    background-color: #4a6a57; /* Màu xanh lá đậm như trong ảnh */
+    color: #fff;
+    padding: 60px 0;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    background-image: url('https://placehold.co/1920x800/4a6a57/4a6a57/fff?text='); /* Nền màu xanh đậm */
+    /* Thêm overlay họa tiết lá cây mờ */
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: cover;
+}
+
+.footer-container {
+    width: 90%;
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    gap: 40px;
+    /* Cấu trúc responsive: 1 cột trên mobile, 3 cột trên desktop */
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1.5fr 1fr 1.5fr; /* 3 cột: Logo (1.5), Về chúng tôi (1), Liên hệ (1.5) */
+    }
+}
+footer {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* === Tiêu đề cột === */
+.footer-col-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f7f7f7;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.footer-col-title-contact {
+    padding-bottom: 8px; /* Khoảng cách với đường kẻ ngang */
+    border-bottom: 2px solid #5d816a; /* Đường kẻ ngang mỏng màu xanh nhạt */
+    display: inline-block;
+    margin-bottom: 25px;
+}
+
+
+/* === Cột 1: Logo và Giới thiệu === */
+.col-logo {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-text {
+    font-size: 3rem; 
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 15px;
+    letter-spacing: 5px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+/* Tái tạo chữ MOW như trong ảnh (dùng SVG là tốt nhất, nhưng dùng text style để đơn giản) */
+.logo-text span {
+    display: inline-block;
+    border: 5px solid white;
+    padding: 0 5px;
+    line-height: 1;
+    border-radius: 50px;
+}
+.logo-text .char-o {
+    position: relative;
+    top: -0.2em;
+}
+.logo-text .char-w {
+    position: relative;
+    left: -5px;
+}
+
+.intro-text {
+    font-size: 0.9rem;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    max-width: 400px;
+}
+
+.company-info {
+    font-size: 0.9rem;
+    color: #fff;
+    font-weight: 500;
+    margin-top: 20px;
+}
+
+.protected-tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #a4deae; /* Màu xanh lá nhạt */
+    margin-bottom: 15px;
+}
+
+.protected-tag i {
+    margin-right: 5px;
+    font-size: 1.2rem;
+}
+
+/* === Cột 2 & 3: Menu và Liên hệ === */
+.footer-link-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-link-list li {
+    margin-bottom: 10px;
+}
+
+.footer-link-list a {
+    color: #e0e0e0;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+}
+
+/* Link Về chúng tôi (có icon mũi tên) */
+.footer-link-list .menu-link {
+    display: flex;
+    align-items: center;
+}
+.footer-link-list .menu-link i {
+    font-size: 0.7rem;
+    margin-right: 10px;
+    color: #a4deae;
+    transition: transform 0.3s;
+}
+.footer-link-list .menu-link:hover {
+    color: #a4deae;
+}
+.footer-link-list .menu-link:hover i {
+    transform: translateX(3px);
+}
+
+/* Thông tin liên hệ */
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: #e0e0e0;
+}
+
+.contact-item .icon {
+    font-size: 0.7rem;
+    margin-top: 5px; 
+    margin-right: 10px;
+    color: #a4deae;
+    min-width: 15px;
+    text-align: center;
+}
+
+.contact-item span, .contact-item a {
+    color: #e0e0e0;
+    text-decoration: none;
+}
+
+.contact-item a:hover {
+    color: #a4deae;
+}
+
+/* Khu vực Mạng xã hội */
+.social-links {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end; /* Căn phải */
+}
+
+@media (min-width: 768px) {
+    .col-contact {
+        text-align: right; /* Căn phải nội dung cột liên hệ trên desktop */
+    }
+    .contact-item {
+        justify-content: flex-end;
+    }
+    .contact-item .icon {
+        order: 2; /* Đảo thứ tự icon sang bên phải */
+        margin-right: 0;
+        margin-left: 10px;
+    }
+    .social-links {
+        justify-content: flex-end; /* Giữ căn phải */
+    }
+}
+@media (max-width: 767px) {
+    .social-links {
+        justify-content: flex-start; /* Căn trái trên mobile */
+    }
+}
+
+.social-link {
+    width: 35px;
+    height: 35px;
+    background-color: transparent;
+    border: 1px solid #e0e0e0;
+    color: #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.social-link:hover {
+    background-color: #a4deae;
+    color: #4a6a57;
+    border-color: #a4deae;
+}
+/* --- PHẦN BẢN ĐỒ --- */
+/* --- PHẦN BẢN ĐỒ --- */
+/* ===== MAP SECTION ===== */
+.map-section {
+    background-color: #4f6f5c;
+    padding: 40px 0 0;
+    width: 100%;
+
+    /* Căn giữa */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.map-container {
+    width: 100%;          /* FULL CHIỀU NGANG */
+    max-width: 1200px;    /* Giới hạn để không quá to như ảnh mẫu */
+    margin: 0 auto;       /* căn giữa */
+}
+.map-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: white;
+}
+
+/* Khung chứa bản đồ */
+.map-wrapper {
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    max-width: 900px;
+    width: 90%;
+    margin: 0 auto;
+
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+
+    /* Căn giữa map */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.map-iframe {
+    width: 100%;
+    height: 500px;
+    border-radius: 8px;
+    border: none;
+    }
+
+/* ===== COPYRIGHT ===== */
+.copyright-bar {
+    margin: 0;
+    background-color: #3f5b4b;
+    color: white;
+    text-align: center;
+    padding: 12px 0;
+    margin-top: 25px;
+
+    /* Kéo sát map */
+    width: 100%;
+    }
+
+/* --- FLOATING CONTACT BUTTON --- */
+.floating-contact-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 53px;
+    height: 53px;
+    background-color: #00c06b;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.35);
+    transition: 0.25s;
+    z-index: 1000;
+    }
+
+.floating-contact-btn:hover {
+    background-color: #00a759;
+    transform: scale(1.08);
+    }
+
+.floating-contact-btn i {
+    font-size: 1.55rem;
+    }
+
+/* Label text */
+.floating-contact-btn .label {
+    position: absolute;
+    bottom: -26px;
+    right: 50%;
+    transform: translateX(50%);
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    }
+
+/* Hiển thị label khi desktop */
+@media (min-width: 768px) {
+    .floating-contact-btn .label {
+    opacity: 1;
+    visibility: visible;
+    bottom: 10px;
+    right: 65px;
+    background: none;
+    color: #00c06b;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transform: none;
+    }
+}

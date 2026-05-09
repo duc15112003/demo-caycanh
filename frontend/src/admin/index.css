@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #10b981;
+  --color-primary-light: #ecfdf5;
+  --color-surface: #ffffff;
+  --color-background: #f8fafc;
+  --color-text: #064e3b;
+  --color-text-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-success: #05cd99;
+  --color-warning: #ffb547;
+  --color-danger: #ee5d50;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+body {
+  margin: 0;
+  font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+* {
+  box-sizing: border-box;
+}

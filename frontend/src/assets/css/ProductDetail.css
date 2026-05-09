@@ -1,0 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary: #1b4332;      
+    --accent: #d4a373;      
+    --light-bg: #f3f6f4;     
+    --white: #ffffff;
+    --text-main: #2b2b2b;
+    --text-light: #666;
+    --shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.product-detail-page {
+    font-family: 'Quicksand', sans-serif;
+    background-color: var(--light-bg);
+    padding: 50px 20px;
+    color: var(--text-main);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.detail-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr; 
+    gap: 50px;
+    margin-bottom: 60px;
+    align-items: start;
+}
+
+.detail-gallery {
+    position: sticky;
+    top: 20px;
+    background: var(--white);
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+.main-image {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 15px;
+    display: block;
+}
+
+.detail-info {
+    padding-top: 10px;
+}
+
+.breadcrumb {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 15px;
+}
+
+.breadcrumb span { 
+    color: var(--accent); 
+    font-weight: 600; 
+}
+
+.product-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.product-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.rating-stars { color: #f1c40f; font-size: 14px; }
+.review-count { font-size: 14px; color: var(--text-light); text-decoration: underline; cursor: pointer; }
+
+.price-tag {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.stock-badge {
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.in-stock { background: #e8f5e9; color: #2e7d32; }
+.out-stock { background: #ffebee; color: #c62828; }
+
+.description {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text-light);
+    margin-bottom: 30px;
+    border-bottom: 1px dashed #ddd;
+    padding-bottom: 20px;
+}
+
+.action-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.btn-add-cart {
+    flex: 1;
+    background: var(--primary);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    gap: 10px;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(27, 67, 50, 0.3);
+    height: 50px;
+    min-width: 200px;
+}
+
+.btn-add-cart:hover {
+    background: #143625;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(27, 67, 50, 0.4);
+}
+
+.btn-wishlist {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: 0.3s;
+    background: var(--white);
+}
+
+.btn-wishlist:hover { 
+    color: #ff5e57; 
+    border-color: #ff5e57; 
+    background: #fff0f0; 
+}
+
+.section-box {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.box-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    position: relative;
+}
+
+.box-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+}
+
+.review-list { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+}
+
+.review-card {
+    background: #fafafa;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #f0f0f0;
+}
+
+.review-user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.user-name { 
+    font-weight: 700; 
+    font-size: 14px; 
+    color: var(--primary); 
+}
+
+.review-text { 
+    font-size: 13px; 
+    color: #555; 
+    line-height: 1.5; 
+    font-style: italic; 
+}
+
+.review-time { 
+    font-size: 11px; 
+    color: #aaa; 
+    margin-top: 5px; 
+    display: block; 
+    text-align: right; 
+}
+
+@media (max-width: 992px) {
+    .detail-wrapper, .content-grid { grid-template-columns: 1fr; gap: 30px; }
+    .detail-gallery { position: static; }
+    .main-image { height: 400px; }
+}
+
+@media (max-width: 576px) {
+    .action-group { flex-direction: column; }
+    .btn-add-cart { width: 100%; }
+    .main-image { height: 300px; }
+}

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: ceb.controller.AuthAdminExceptionControllerTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.290 s -- in ceb.controller.AuthAdminExceptionControllerTest

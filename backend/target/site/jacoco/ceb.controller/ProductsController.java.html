@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.controller</a> &gt; <span class="el_source">ProductsController.java</span></div><h1>ProductsController.java</h1><pre class="source lang-java linenums">package ceb.controller;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import ceb.domain.model.Products;
+import ceb.domain.req.ProductRequest;
+import ceb.domain.res.MessageResponse;
+import ceb.domain.res.ProductResponse;
+import ceb.service.service.CloudinaryService;
+import ceb.service.service.ProductsService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
+@Validated
+@RestController
+@RequestMapping(&quot;/api/products&quot;)
+public class ProductsController {
+
+    private final ProductsService productsService;
+    private final CloudinaryService cloudinaryService;
+
+<span class="fc" id="L39">    public ProductsController(ProductsService productsService, CloudinaryService cloudinaryService) {</span>
+<span class="fc" id="L40">        this.productsService = productsService;</span>
+<span class="fc" id="L41">        this.cloudinaryService = cloudinaryService;</span>
+<span class="fc" id="L42">    }</span>
+
+    @GetMapping
+    public List&lt;ProductResponse&gt; findAll() {
+<span class="fc" id="L46">        return productsService.findAll().stream().map(ProductResponse::from).toList();</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public ProductResponse findById(
+            @PathVariable @Positive(message = &quot;Product id phai lon hon 0&quot;) int id) {
+<span class="fc" id="L52">        return ProductResponse.from(productsService.findById(id));</span>
+    }
+
+    @GetMapping(&quot;/search&quot;)
+    public List&lt;ProductResponse&gt; search(
+            @RequestParam
+            @NotBlank(message = &quot;Keyword khong duoc de trong&quot;)
+            @Size(max = 100, message = &quot;Keyword khong duoc vuot qua 100 ky tu&quot;)
+            String keyword) {
+<span class="fc" id="L61">        return productsService.search(keyword).stream().map(ProductResponse::from).toList();</span>
+    }
+
+    @GetMapping(&quot;/category/{categoryId}&quot;)
+    public List&lt;ProductResponse&gt; findByCategory(
+            @PathVariable @Positive(message = &quot;Category id phai lon hon 0&quot;) int categoryId) {
+<span class="fc" id="L67">        return productsService.findByCategory(categoryId).stream().map(ProductResponse::from).toList();</span>
+    }
+
+    @PostMapping
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProductResponse create(@Valid @ModelAttribute ProductRequest request) {
+<span class="fc" id="L74">        return ProductResponse.from(productsService.create(toProduct(request)));</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    public ProductResponse update(
+            @PathVariable @Positive(message = &quot;Product id phai lon hon 0&quot;) int id,
+            @Valid @ModelAttribute ProductRequest request) {
+<span class="fc" id="L82">        Products existingProduct = productsService.findById(id);</span>
+<span class="fc" id="L83">        return ProductResponse.from(productsService.update(id, toProduct(request, existingProduct)));</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    public MessageResponse delete(
+            @PathVariable @Positive(message = &quot;Product id phai lon hon 0&quot;) int id) {
+<span class="fc" id="L90">        productsService.delete(id);</span>
+<span class="fc" id="L91">        return new MessageResponse(&quot;Xoa san pham thanh cong&quot;);</span>
+    }
+
+    private Products toProduct(ProductRequest request) {
+<span class="fc" id="L95">        Products product = new Products();</span>
+<span class="fc" id="L96">        product.setCategoryId(request.getCategoryId());</span>
+<span class="fc" id="L97">        product.setProductName(request.getProductName());</span>
+<span class="fc" id="L98">        product.setDescription(request.getDescription());</span>
+<span class="fc" id="L99">        product.setCareGuide(request.getCareGuide());</span>
+<span class="fc" id="L100">        product.setPrice(request.getPrice());</span>
+<span class="fc" id="L101">        product.setStock(request.getStock());</span>
+<span class="fc" id="L102">        product.setActive(request.isActive());</span>
+
+<span class="pc bpc" id="L104" title="3 of 4 branches missed.">        if (request.getImage() != null &amp;&amp; !request.getImage().isEmpty()) {</span>
+<span class="nc" id="L105">            String imageUrl = cloudinaryService.uploadFile(request.getImage()).getUrl();</span>
+<span class="nc" id="L106">            product.setImage(imageUrl);</span>
+<span class="nc" id="L107">        } else {</span>
+<span class="fc" id="L108">            product.setImage(null);</span>
+        }
+
+<span class="fc" id="L111">        return product;</span>
+    }
+
+    private Products toProduct(ProductRequest request, Products existingProduct) {
+<span class="fc" id="L115">        Products product = new Products();</span>
+<span class="fc" id="L116">        product.setCategoryId(request.getCategoryId());</span>
+<span class="fc" id="L117">        product.setProductName(request.getProductName());</span>
+<span class="fc" id="L118">        product.setDescription(request.getDescription());</span>
+<span class="fc" id="L119">        product.setCareGuide(request.getCareGuide());</span>
+<span class="fc" id="L120">        product.setPrice(request.getPrice());</span>
+<span class="fc" id="L121">        product.setStock(request.getStock());</span>
+<span class="fc" id="L122">        product.setActive(request.isActive());</span>
+
+<span class="pc bpc" id="L124" title="3 of 4 branches missed.">        if (request.getImage() != null &amp;&amp; !request.getImage().isEmpty()) {</span>
+<span class="nc" id="L125">            String imageUrl = cloudinaryService.uploadFile(request.getImage()).getUrl();</span>
+<span class="nc" id="L126">            product.setImage(imageUrl);</span>
+<span class="nc" id="L127">        } else {</span>
+<span class="fc" id="L128">            product.setImage(existingProduct.getImage()); // keep existing image</span>
+        }
+
+<span class="fc" id="L131">        return product;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

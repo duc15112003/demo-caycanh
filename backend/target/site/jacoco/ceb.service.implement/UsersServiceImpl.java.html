@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsersServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.service.implement</a> &gt; <span class="el_source">UsersServiceImpl.java</span></div><h1>UsersServiceImpl.java</h1><pre class="source lang-java linenums">package ceb.service.implement;
+
+import java.util.List;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import ceb.domain.entity.Users;
+import ceb.exception.BadRequestException;
+import ceb.exception.CurrentPasswordIncorrectException;
+import ceb.exception.PasswordRequiredException;
+import ceb.exception.UserNotFoundException;
+import ceb.repository.UsersRepository;
+import ceb.service.service.CurrentUserService;
+import ceb.service.service.UsersService;
+
+@Service
+public class UsersServiceImpl implements UsersService {
+
+    private final UsersRepository usersRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final CurrentUserService currentUserService;
+
+    public UsersServiceImpl(
+            UsersRepository usersRepository,
+            PasswordEncoder passwordEncoder,
+<span class="fc" id="L28">            CurrentUserService currentUserService) {</span>
+<span class="fc" id="L29">        this.usersRepository = usersRepository;</span>
+<span class="fc" id="L30">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L31">        this.currentUserService = currentUserService;</span>
+<span class="fc" id="L32">    }</span>
+
+    @Override
+    public List&lt;Users&gt; findAll() {
+<span class="nc" id="L36">        return usersRepository.findAlls();</span>
+    }
+
+    @Override
+    public Users getUsersByEmail(String email) {
+<span class="pc" id="L41">        return usersRepository.findByEmail(email)</span>
+<span class="nc" id="L42">                .orElseThrow(UserNotFoundException::new);</span>
+    }
+
+    @Override
+    public int updatePassword(int userId, String password) {
+<span class="nc bnc" id="L47" title="All 4 branches missed.">        if (password == null || password.isBlank()) {</span>
+<span class="nc" id="L48">            throw new PasswordRequiredException();</span>
+        }
+
+<span class="nc" id="L51">        getExistingUser(userId);</span>
+<span class="nc" id="L52">        return usersRepository.updatePassword(userId, passwordEncoder.encode(password));</span>
+    }
+
+    @Override
+    public void changePassword(Authentication authentication, String currentPassword, String newPassword) {
+<span class="pc bpc" id="L57" title="2 of 4 branches missed.">        if (currentPassword == null || currentPassword.isBlank()) {</span>
+<span class="nc" id="L58">            throw new PasswordRequiredException();</span>
+        }
+<span class="pc bpc" id="L60" title="2 of 4 branches missed.">        if (newPassword == null || newPassword.isBlank()) {</span>
+<span class="nc" id="L61">            throw new PasswordRequiredException();</span>
+        }
+
+<span class="fc" id="L64">        Users currentUser = currentUserService.getCurrentUser(authentication);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (!passwordEncoder.matches(currentPassword, currentUser.getPassword())) {</span>
+<span class="fc" id="L66">            throw new CurrentPasswordIncorrectException();</span>
+        }
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (passwordEncoder.matches(newPassword, currentUser.getPassword())) {</span>
+<span class="nc" id="L69">            throw new BadRequestException(&quot;Mat khau moi khong duoc trung mat khau cu&quot;);</span>
+        }
+
+<span class="fc" id="L72">        usersRepository.updatePassword(currentUser.getUserId(), passwordEncoder.encode(newPassword));</span>
+<span class="fc" id="L73">    }</span>
+
+    @Override
+    public void deleteById(int userId) {
+<span class="nc" id="L77">        getExistingUser(userId);</span>
+<span class="nc" id="L78">        usersRepository.deleteById(userId);</span>
+<span class="nc" id="L79">    }</span>
+
+    private Users getExistingUser(int userId) {
+<span class="nc" id="L82">        return usersRepository.findById(userId)</span>
+<span class="nc" id="L83">                .orElseThrow(UserNotFoundException::new);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

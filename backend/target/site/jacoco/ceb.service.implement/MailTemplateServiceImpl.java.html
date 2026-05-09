@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MailTemplateServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.service.implement</a> &gt; <span class="el_source">MailTemplateServiceImpl.java</span></div><h1>MailTemplateServiceImpl.java</h1><pre class="source lang-java linenums">package ceb.service.implement;
+
+import java.time.Instant;
+
+import org.springframework.stereotype.Service;
+
+import ceb.service.service.MailTemplateService;
+
+@Service
+<span class="fc" id="L10">public class MailTemplateServiceImpl implements MailTemplateService {</span>
+
+    @Override
+    public String buildOtpEmail(String otp, Instant expiresAt, long resendCooldownSeconds) {
+<span class="fc" id="L14">        return baseTemplate(</span>
+                &quot;Ma OTP Xac Thuc&quot;,
+                &quot;Xac thuc tai khoan cua ban&quot;,
+                &quot;&quot;&quot;
+                &lt;p style=&quot;margin:0 0 14px;color:#334155;font-size:15px;line-height:1.7;&quot;&gt;
+                  He thong da nhan duoc yeu cau xac thuc tai khoan cua ban.
+                &lt;/p&gt;
+                &lt;p style=&quot;margin:0 0 22px;color:#334155;font-size:15px;line-height:1.7;&quot;&gt;
+                  Vui long su dung ma OTP duoi day de tiep tuc. Khong chia se ma nay cho bat ky ai.
+                &lt;/p&gt;
+                &lt;div style=&quot;margin:0 0 24px;padding:26px 20px;border-radius:20px;background:#f8fafc;border:1px solid #dbe4dd;text-align:center;&quot;&gt;
+                  &lt;div style=&quot;margin:0 0 10px;font-size:11px;letter-spacing:2.6px;text-transform:uppercase;color:#64748b;font-weight:700;&quot;&gt;
+                    Verification Code
+                  &lt;/div&gt;
+                  &lt;div style=&quot;font-size:36px;line-height:1;font-weight:800;letter-spacing:10px;color:#14532d;font-family:'Segoe UI',Arial,sans-serif;&quot;&gt;
+                    %s
+                  &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div style=&quot;margin:0 0 18px;padding:16px 18px;border-radius:16px;background:#ffffff;border:1px solid #e2e8f0;&quot;&gt;
+                  &lt;p style=&quot;margin:0 0 8px;color:#0f172a;font-size:14px;font-weight:700;&quot;&gt;Luu y bao mat&lt;/p&gt;
+                  &lt;p style=&quot;margin:0;color:#475569;font-size:14px;line-height:1.7;&quot;&gt;
+                    Neu ban chua nhan duoc ma moi, ban co the yeu cau gui lai sau %s giay.
+                  &lt;/p&gt;
+                &lt;/div&gt;
+                &lt;p style=&quot;margin:0;color:#64748b;font-size:13px;line-height:1.7;&quot;&gt;
+                  Neu ban khong thuc hien yeu cau nay, vui long bo qua email nay de dam bao an toan cho tai khoan.
+                &lt;/p&gt;
+<span class="fc" id="L41">                &quot;&quot;&quot;.formatted(otp, resendCooldownSeconds));</span>
+    }
+
+    @Override
+    public String buildResetPasswordEmail(String fullName, String resetLink, String resetToken) {
+<span class="pc bpc" id="L46" title="3 of 4 branches missed.">        String safeFullName = fullName == null || fullName.isBlank() ? &quot;ban&quot; : fullName;</span>
+
+<span class="fc" id="L48">        return baseTemplate(</span>
+                &quot;Dat Lai Mat Khau&quot;,
+                &quot;Yeu cau dat lai mat khau&quot;,
+                &quot;&quot;&quot;
+                &lt;p style=&quot;margin:0 0 16px;color:#475569;font-size:15px;line-height:1.7;&quot;&gt;
+                  Xin chao &lt;strong style=&quot;color:#0f172a;&quot;&gt;%s&lt;/strong&gt;,
+                &lt;/p&gt;
+                &lt;p style=&quot;margin:0 0 18px;color:#475569;font-size:15px;line-height:1.7;&quot;&gt;
+                  He thong vua nhan duoc yeu cau dat lai mat khau cho tai khoan cua ban. Bam nut ben duoi de tiep tuc.
+                &lt;/p&gt;
+                &lt;div style=&quot;margin:28px 0;text-align:center;&quot;&gt;
+                  &lt;a href=&quot;%s&quot; style=&quot;display:inline-block;padding:14px 28px;border-radius:999px;background:linear-gradient(135deg,#16a34a 0%%,#0f766e 100%%);color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;&quot;&gt;
+                    Dat Lai Mat Khau
+                  &lt;/a&gt;
+                &lt;/div&gt;
+                &lt;div style=&quot;margin:0 0 18px;padding:16px 18px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;&quot;&gt;
+                  &lt;p style=&quot;margin:0 0 10px;color:#0f172a;font-size:14px;&quot;&gt;&lt;strong&gt;Neu nut khong hoat dong, dung link sau:&lt;/strong&gt;&lt;/p&gt;
+                  &lt;p style=&quot;margin:0 0 14px;word-break:break-all;color:#2563eb;font-size:13px;&quot;&gt;%s&lt;/p&gt;
+                  &lt;p style=&quot;margin:0 0 8px;color:#0f172a;font-size:14px;&quot;&gt;&lt;strong&gt;Hoac dung token truc tiep:&lt;/strong&gt;&lt;/p&gt;
+                  &lt;p style=&quot;margin:0;word-break:break-all;color:#334155;font-size:13px;&quot;&gt;%s&lt;/p&gt;
+                &lt;/div&gt;
+                &lt;p style=&quot;margin:0;color:#64748b;font-size:13px;line-height:1.7;&quot;&gt;
+                  Neu ban khong thuc hien yeu cau nay, vui long bo qua email nay. Mat khau hien tai cua ban se khong bi thay doi.
+                &lt;/p&gt;
+<span class="fc" id="L72">                &quot;&quot;&quot;.formatted(safeFullName, resetLink, resetLink, resetToken));</span>
+    }
+
+    private String baseTemplate(String title, String subtitle, String bodyHtml) {
+<span class="fc" id="L76">        return &quot;&quot;&quot;</span>
+                &lt;!DOCTYPE html&gt;
+                &lt;html lang=&quot;en&quot;&gt;
+                &lt;head&gt;
+                  &lt;meta charset=&quot;UTF-8&quot;&gt;
+                  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+                  &lt;title&gt;%s&lt;/title&gt;
+                &lt;/head&gt;
+                &lt;body style=&quot;margin:0;padding:0;background:#eef4f1;font-family:'Segoe UI',Arial,sans-serif;&quot;&gt;
+                  &lt;div style=&quot;padding:32px 16px;background:
+                    radial-gradient(circle at top,#d9f99d 0%%,rgba(217,249,157,0) 26%%),
+                    linear-gradient(180deg,#f8fafc 0%%,#eef4f1 100%%);&quot;&gt;
+                    &lt;table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%%&quot; style=&quot;max-width:680px;margin:0 auto;&quot;&gt;
+                      &lt;tr&gt;
+                        &lt;td style=&quot;padding-bottom:18px;text-align:center;&quot;&gt;
+                          &lt;div style=&quot;display:inline-block;padding:10px 18px;border-radius:999px;background:#ffffff;border:1px solid #dbe4dd;color:#166534;font-weight:800;letter-spacing:1px;font-size:12px;text-transform:uppercase;&quot;&gt;
+                            TreePlant
+                          &lt;/div&gt;
+                        &lt;/td&gt;
+                      &lt;/tr&gt;
+                      &lt;tr&gt;
+                        &lt;td style=&quot;background:#ffffff;border:1px solid #dbe4dd;border-radius:28px;overflow:hidden;box-shadow:0 20px 60px rgba(15,23,42,0.08);&quot;&gt;
+                          &lt;div style=&quot;padding:32px;background:
+                            linear-gradient(135deg,#052e16 0%%,#166534 52%%,#15803d 100%%);
+                            color:#ffffff;&quot;&gt;
+                            &lt;div style=&quot;font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:0.78;margin-bottom:10px;&quot;&gt;Secure Message&lt;/div&gt;
+                            &lt;h1 style=&quot;margin:0 0 10px;font-size:30px;line-height:1.2;font-weight:800;&quot;&gt;%s&lt;/h1&gt;
+                            &lt;p style=&quot;margin:0;font-size:15px;line-height:1.7;color:rgba(255,255,255,0.86);&quot;&gt;%s&lt;/p&gt;
+                          &lt;/div&gt;
+                          &lt;div style=&quot;padding:30px 32px 12px;&quot;&gt;
+                            %s
+                          &lt;/div&gt;
+                          &lt;div style=&quot;padding:0 32px 28px;&quot;&gt;
+                            &lt;div style=&quot;height:1px;background:#e2e8f0;margin-bottom:18px;&quot;&gt;&lt;/div&gt;
+                            &lt;p style=&quot;margin:0;color:#94a3b8;font-size:12px;line-height:1.7;&quot;&gt;
+                              Day la email tu dong tu he thong TreePlant. Vui long khong tra loi truc tiep email nay.
+                            &lt;/p&gt;
+                          &lt;/div&gt;
+                        &lt;/td&gt;
+                      &lt;/tr&gt;
+                    &lt;/table&gt;
+                  &lt;/div&gt;
+                &lt;/body&gt;
+                &lt;/html&gt;
+<span class="fc" id="L120">                &quot;&quot;&quot;.formatted(title, title, subtitle, bodyHtml);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

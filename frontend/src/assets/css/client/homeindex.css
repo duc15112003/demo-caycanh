@@ -1,0 +1,491 @@
+/* --- 1. Layout Wrapper (Quan trọng để Hero Banner và Danh mục xuống dòng) --- */
+.home-content {
+    /* Đảm bảo nó không can thiệp vào các thành phần con bằng Flex/Grid */
+    width: 100%;
+    display: block; 
+}
+
+/* --- 2. Hero Banner (Phần ảnh nền) --- */
+.hero-banner {
+    width: 100%;
+    /* THAY ĐỔI: Chỉ chiếm 80% chiều cao màn hình cho phần Hero */
+    min-height: 100vh; 
+    
+    /* Đường dẫn ảnh nền */
+    background-image: url('../../images/caytrongnha1.jpg');
+    background-size: cover;
+    background-position: center;
+    /*position: relative;
+    
+    /* Thiết lập Flexbox để chứa và xuống dòng các khối bên trong */
+    display: flex;
+    flex-wrap: wrap; 
+}
+
+/* Wrapper để căn giữa Hộp Nội dung Trắng */
+.hero-content-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+}
+
+
+/* --- 3. Content Box (Hộp trắng mờ) --- */
+.content-box {
+    background-color: rgba(255, 255, 255, 0.85); 
+    padding: 50px;
+    max-width: 700px; 
+    width: 90%; 
+    text-align: left;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+}
+
+/* Tiêu đề */
+.content-box h1 {
+    font-family: 'Playfair Display', serif; 
+    color: #1f3c2e; 
+    font-size: 36px;
+    margin-bottom: 20px;
+    line-height: 1.3;
+}
+
+/* Đoạn văn */
+.content-box p {
+    font-family: 'Playfair Display', serif; 
+    color: #4a5550;
+    font-size: 20px;
+    margin-bottom: 35px;
+    padding-right: 20px;
+}
+
+/* --- 4. Buttons (Các nút bấm) --- */
+.button-group {
+    /* Bật Flexbox để căn chỉnh các mục con */
+    display: flex; 
+    /* Căn giữa các mục con theo chiều ngang */
+    justify-content: center; 
+    /* Nếu muốn có khoảng cách giữa hai nút */
+    gap: 15px; /* Ví dụ 15px */ 
+    
+    /* Đảm bảo div này có chiều rộng phù hợp nếu cần thiết */
+    width: 100%; 
+}
+
+.btn {
+    text-decoration: none;
+    padding: 12px 30px;
+    border-radius: 50px; 
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+/* Nút LIÊN HỆ (Viền) */
+.btn-outline {
+    font-family: 'Playfair Display', serif; 
+    border: 1px solid #333;
+    color: #333;
+    position: center;
+    background: transparent;
+}
+
+.btn-outline:hover {
+    background: #333;
+    color: #fff;
+}
+
+/* Nút MUA NGAY (Nền xanh) */
+.btn-filled {
+    font-family: 'Playfair Display', serif; 
+    background-color: #1f3c2e; 
+    color: white;
+    border: 1px solid #1f3c2e;
+}
+
+.btn-filled:hover {
+    background-color: #2c5240;
+    border-color: #2c5240;
+}
+
+/* --- 5. Floating Call Button (Nút gọi góc phải) --- */
+.floating-call-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: #00a651; 
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0, 166, 81, 0.4);
+    z-index: 1000;
+}
+
+.why-choose-section {
+    width: 100%;
+    padding: 80px 0;
+    background: #fefcfb
+}
+
+.why-choose-section .container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 15px;
+}
+
+.section-title {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #3d2b24;
+    margin-bottom: 50px;
+}
+
+.choose-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.choose-item {
+    text-align: center;
+    background: #ffffff;
+    padding: 30px 20px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.choose-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}
+
+.choose-icon {
+    width: 60px;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+.choose-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #3d2b24;
+    margin-bottom: 10px;
+}
+
+.choose-desc {
+    font-size: 14px;
+    color: #6d625d;
+    line-height: 1.5;
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    .choose-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .choose-grid {
+        grid-template-columns: 1fr;
+    }
+    .section-title {
+        font-size: 28px;
+    }
+}
+
+/* ==================== SẢN PHẨM MỚI ==================== */
+.new-arrival {
+    background-color: #fefcfb; /* Màu nền đồng bộ */
+    padding: 60px 0;
+    font-family: 'Playfair Display', serif; 
+}
+
+/* Container chung để canh lề 2 bên */
+.container {
+    width: 90%;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* Tiêu đề */
+.section-title {
+    font-family: 'Playfair Display', serif; 
+    text-align: center;
+    font-size: 2rem; 
+    font-weight: 500;
+    color: #000000;
+    margin-bottom: 40px;
+}
+
+/* Lưới sản phẩm - Sử dụng CSS Grid cho responsive */
+.product-grid {
+    display: grid;
+    gap: 20px; 
+    grid-template-columns: repeat(2, 1fr); /* 2 cột cho mobile */
+}
+
+@media (min-width: 768px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 cột cho tablet */
+    }
+}
+
+@media (min-width: 1024px) {
+    .product-grid {
+        grid-template-columns: repeat(5, 1fr); /* 5 cột cho desktop */
+    }
+}
+
+/* Thẻ sản phẩm */
+.product-card {
+    display: block;
+    text-decoration: none;
+    color: #333;
+    background-color: #fff;
+    padding: 10px; /* Padding nhẹ xung quanh */
+    transition: box-shadow 0.3s;
+}
+
+.product-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Khu vực ảnh */
+.product-image-area {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+}
+
+.product-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Khu vực thông tin */
+.product-info {
+    text-align: left; /* Tên sản phẩm căn lề trái */
+    padding: 0 5px;
+}
+
+.product-name {
+    font-family: 'Playfair Display', serif; 
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.4;
+    height: 58px; /* Giới hạn 3 dòng cho tên sản phẩm */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.product-price {
+    font-family: 'Playfair Display', serif; 
+    font-size: 1rem;
+    font-weight: 700;
+    color: #e53e3e; /* Màu giá đỏ */
+    margin-top: 10px;
+}
+/* Nút Xem thêm */
+.view-more-button {
+    font-family: 'Playfair Display', serif; 
+    display: inline-flex; /* Để icon và text trên cùng một dòng và căn giữa */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 50px; /* Khoảng cách từ lưới sản phẩm */
+    padding: 12px 25px;
+    font-size: 1rem; /* Kích thước chữ */
+    font-weight: 600;
+    color: #fff; /* Chữ màu trắng */
+    background-color: #4a6a57; /* Màu nền xanh lá đậm */
+    border-radius: 8px; /* Bo góc */
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ nhẹ */
+}
+
+.view-more-button:hover {
+    background-color: #3f5a4a; /* Màu nền đậm hơn khi hover */
+    transform: translateY(-2px); /* Hiệu ứng nhấc nhẹ lên */
+}
+/* --- PHẦN KHÁCH HÀNG (TESTIMONIALS) --- */
+    .testimonial-section, .blog-section {
+        padding: 60px 0;
+        background-color: #fff; /* Nền trắng sạch */
+    }
+
+    .section-title-serif {
+        font-family: 'Playfair Display', serif; /* Font có chân cho tiêu đề giống ảnh */
+        text-align: center;
+        color: #1b4332; /* Xanh đậm */
+        font-size: 32px;
+        margin-bottom: 40px;
+        font-weight: 700;
+    }
+
+    .testimonial-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Chia 2 cột */
+        gap: 30px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .testimonial-card {
+        background: #f9f9f9; /* Nền xám rất nhẹ */
+        padding: 30px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        transition: transform 0.3s ease;
+    }
+    
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    /* Đường kẻ dọc bên trái quote */
+    .quote-box {
+        border-left: 4px solid #2d6a4f; /* Đường kẻ xanh */
+        padding-left: 20px;
+        font-style: italic;
+        color: #555;
+        line-height: 1.6;
+        font-size: 15px;
+    }
+
+    .author-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .author-details h4 {
+        margin: 0;
+        color: #1b4332;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .author-details span {
+        font-size: 13px;
+        color: #888;
+    }
+
+    /* --- PHẦN BLOG (TIN TỨC) --- */
+    .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Chia 3 cột */
+        gap: 20px;
+    }
+
+    .blog-card {
+        position: relative; /* Để căn chỉnh chữ đè lên ảnh */
+        height: 300px;
+        overflow: hidden;
+        border-radius: 8px;
+    }
+
+    .blog-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .blog-card:hover .blog-img {
+        transform: scale(1.1); /* Phóng to ảnh khi hover */
+    }
+
+    /* Hộp nội dung đè lên ảnh */
+    .blog-content-overlay {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ */
+        padding: 15px;
+        border-radius: 4px;
+    }
+
+    .blog-tag {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #888;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .blog-title {
+        margin: 5px 0 0 0;
+        font-size: 16px;
+        color: #1b4332;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    /* --- NÚT LIÊN HỆ TRÔI (FLOATING BUTTON) --- */
+    .floating-contact {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: #008f5d; /* Màu xanh lá tươi giống ảnh */
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(0, 143, 93, 0.4);
+        font-size: 10px;
+        z-index: 999;
+        transition: transform 0.3s;
+    }
+
+    .floating-contact:hover {
+        transform: scale(1.1);
+        background-color: #007a4f;
+    }
+
+    .floating-contact i {
+        font-size: 20px;
+        margin-bottom: 2px;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .testimonial-grid, .blog-grid {
+            grid-template-columns: 1fr; /* Về 1 cột trên điện thoại */
+        }
+    }

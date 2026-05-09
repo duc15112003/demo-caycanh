@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CurrentUserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.service.implement</a> &gt; <span class="el_source">CurrentUserServiceImpl.java</span></div><h1>CurrentUserServiceImpl.java</h1><pre class="source lang-java linenums">package ceb.service.implement;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+
+import ceb.domain.entity.Users;
+import ceb.exception.AuthenticationRequiredException;
+import ceb.exception.CurrentUserUnavailableException;
+import ceb.security.CustomUserDetails;
+import ceb.service.service.CurrentUserService;
+
+@Service
+<span class="fc" id="L13">public class CurrentUserServiceImpl implements CurrentUserService {</span>
+
+    @Override
+    public Users getCurrentUser(Authentication authentication) {
+<span class="pc bpc" id="L17" title="1 of 2 branches missed.">        if (authentication == null</span>
+<span class="pc bpc" id="L18" title="1 of 2 branches missed.">                || !authentication.isAuthenticated()</span>
+<span class="pc bpc" id="L19" title="1 of 2 branches missed.">                || &quot;anonymousUser&quot;.equals(authentication.getPrincipal())) {</span>
+<span class="nc" id="L20">            throw new AuthenticationRequiredException();</span>
+        }
+
+<span class="fc" id="L23">        Object principal = authentication.getPrincipal();</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (principal instanceof CustomUserDetails customUserDetails) {</span>
+<span class="fc" id="L25">            return customUserDetails.getUser();</span>
+        }
+
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">        if (!(principal instanceof Users user)) {</span>
+<span class="nc" id="L29">            throw new CurrentUserUnavailableException();</span>
+        }
+
+<span class="fc" id="L32">        return user;</span>
+    }
+
+    @Override
+    public int getCurrentUserId(Authentication authentication) {
+<span class="fc" id="L37">        return getCurrentUser(authentication).getUserId();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

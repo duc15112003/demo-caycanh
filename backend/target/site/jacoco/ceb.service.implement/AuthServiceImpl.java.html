@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.service.implement</a> &gt; <span class="el_source">AuthServiceImpl.java</span></div><h1>AuthServiceImpl.java</h1><pre class="source lang-java linenums">package ceb.service.implement;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import ceb.security.JwtService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import ceb.domain.entity.Users;
+import ceb.exception.AccountCreationFailedException;
+import ceb.exception.EmailAlreadyExistsException;
+import ceb.exception.EmailRequiredException;
+import ceb.exception.InvalidCredentialsException;
+import ceb.exception.InvalidRegistrationException;
+import ceb.exception.BadRequestException;
+import ceb.exception.PasswordRequiredException;
+import ceb.exception.PhoneAlreadyExistsException;
+import ceb.exception.UserDisabledException;
+import ceb.exception.UserNotFoundException;
+import ceb.repository.UsersRepository;
+import ceb.security.TokenBlacklistService;
+import ceb.service.service.AuthService;
+
+@Service
+public class AuthServiceImpl implements AuthService {
+
+    private final UsersRepository usersRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenBlacklistService tokenBlacklistService;
+    private final JwtService jwtService;
+
+    public AuthServiceImpl(
+            UsersRepository usersRepository,
+            PasswordEncoder passwordEncoder,
+            TokenBlacklistService tokenBlacklistService,
+<span class="fc" id="L38">            JwtService jwtService) {</span>
+<span class="fc" id="L39">        this.usersRepository = usersRepository;</span>
+<span class="fc" id="L40">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L41">        this.tokenBlacklistService = tokenBlacklistService;</span>
+<span class="fc" id="L42">        this.jwtService = jwtService;</span>
+<span class="fc" id="L43">    }</span>
+
+    @Override
+    public Users register(Users user) {
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L48">            throw new InvalidRegistrationException();</span>
+        }
+<span class="pc bpc" id="L50" title="2 of 4 branches missed.">        if (user.getEmail() == null || user.getEmail().isBlank()) {</span>
+<span class="nc" id="L51">            throw new EmailRequiredException();</span>
+        }
+<span class="pc bpc" id="L53" title="2 of 4 branches missed.">        if (user.getPassword() == null || user.getPassword().isBlank()) {</span>
+<span class="nc" id="L54">            throw new PasswordRequiredException();</span>
+        }
+
+<span class="fc" id="L57">        String normalizedEmail = user.getEmail().trim();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        String normalizedPhone = user.getPhone() == null ? null : user.getPhone().trim().replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
+<span class="pc bpc" id="L59" title="2 of 4 branches missed.">        if (normalizedPhone != null &amp;&amp; normalizedPhone.isBlank()) {</span>
+<span class="nc" id="L60">            normalizedPhone = null;</span>
+        }
+
+<span class="fc" id="L63">        user.setEmail(normalizedEmail);</span>
+<span class="fc" id="L64">        user.setPhone(normalizedPhone);</span>
+
+<span class="fc" id="L66">        Optional&lt;Users&gt; existingUser = usersRepository.findByEmail(normalizedEmail);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (existingUser.isPresent()) {</span>
+<span class="fc" id="L68">            throw new EmailAlreadyExistsException();</span>
+        }
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">        if (normalizedPhone != null &amp;&amp; usersRepository.findByPhone(normalizedPhone).isPresent()) {</span>
+<span class="nc" id="L71">            throw new PhoneAlreadyExistsException();</span>
+        }
+
+<span class="fc" id="L74">        user.setPassword(passwordEncoder.encode(user.getPassword()));</span>
+<span class="fc" id="L75">        user.setEnabled(true);</span>
+<span class="pc bpc" id="L76" title="3 of 4 branches missed.">        if (user.getRole() == null || user.getRole().isBlank()) {</span>
+<span class="fc" id="L77">            user.setRole(&quot;USER&quot;);</span>
+        }
+
+<span class="fc" id="L80">        usersRepository.save(user);</span>
+<span class="fc" id="L81">        return usersRepository.findByEmail(normalizedEmail)</span>
+<span class="fc" id="L82">                .orElseThrow(AccountCreationFailedException::new);</span>
+    }
+
+    @Override
+    public Users login(String email, String password) {
+<span class="fc" id="L87">        Users dbUser = usersRepository.findByEmail(email.trim())</span>
+<span class="fc" id="L88">                .orElseThrow(UserNotFoundException::new);</span>
+
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (!dbUser.isEnabled()) {</span>
+<span class="fc" id="L91">            throw new UserDisabledException();</span>
+        }
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (!passwordEncoder.matches(password, dbUser.getPassword())) {</span>
+<span class="fc" id="L95">            throw new InvalidCredentialsException();</span>
+        }
+
+<span class="fc" id="L98">        return dbUser;</span>
+    }
+
+    @Override
+    public Users loginWithGoogle(String email, String fullName) {
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (!StringUtils.hasText(email)) {</span>
+<span class="nc" id="L104">            throw new UserNotFoundException();</span>
+        }
+
+<span class="fc" id="L107">        String normalizedEmail = email.trim();</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        String normalizedFullName = StringUtils.hasText(fullName) ? fullName.trim() : normalizedEmail;</span>
+
+<span class="fc" id="L110">        Optional&lt;Users&gt; existingUser = usersRepository.findByEmail(normalizedEmail);</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (existingUser.isPresent()) {</span>
+<span class="nc" id="L112">            Users user = existingUser.get();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (!user.isEnabled()) {</span>
+<span class="nc" id="L114">                throw new UserDisabledException();</span>
+            }
+<span class="nc" id="L116">            return user;</span>
+        }
+
+<span class="fc" id="L119">        Users user = new Users();</span>
+<span class="fc" id="L120">        user.setFullName(normalizedFullName);</span>
+<span class="fc" id="L121">        user.setEmail(normalizedEmail);</span>
+<span class="fc" id="L122">        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));</span>
+<span class="fc" id="L123">        user.setRole(&quot;USER&quot;);</span>
+<span class="fc" id="L124">        user.setEnabled(true);</span>
+<span class="fc" id="L125">        usersRepository.save(user);</span>
+
+<span class="fc" id="L127">        return usersRepository.findByEmail(normalizedEmail)</span>
+<span class="fc" id="L128">                .orElseThrow(AccountCreationFailedException::new);</span>
+    }
+
+    @Override
+    public void requestPasswordReset(String email, String newPassword) {
+<span class="pc bpc" id="L133" title="2 of 4 branches missed.">        if (email == null || email.isBlank()) {</span>
+<span class="nc" id="L134">            throw new EmailRequiredException();</span>
+        }
+<span class="pc bpc" id="L136" title="2 of 4 branches missed.">        if (newPassword == null || newPassword.isBlank()) {</span>
+<span class="nc" id="L137">            throw new PasswordRequiredException();</span>
+        }
+
+<span class="fc" id="L140">        Users user = usersRepository.findByEmail(email.trim())</span>
+<span class="fc" id="L141">                .filter(Users::isEnabled)</span>
+<span class="fc" id="L142">                .orElseThrow(UserNotFoundException::new);</span>
+
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (passwordEncoder.matches(newPassword, user.getPassword())) {</span>
+<span class="nc" id="L145">            throw new BadRequestException(&quot;Mat khau moi khong duoc trung mat khau cu&quot;);</span>
+        }
+
+<span class="fc" id="L148">        usersRepository.updatePassword(user.getUserId(), passwordEncoder.encode(newPassword));</span>
+<span class="fc" id="L149">    }</span>
+
+    @Override
+    public void resetPassword(String email, String newPassword) {
+<span class="nc" id="L153">        requestPasswordReset(email, newPassword);</span>
+<span class="nc" id="L154">    }</span>
+
+    @Override
+    public void logout(String token) {
+        // Lấy expiration time từ token và thêm vào blacklist
+<span class="fc" id="L159">        long expirationTime = jwtService.getTokenExpiration(token);</span>
+<span class="fc" id="L160">        tokenBlacklistService.blacklistToken(token, expirationTime);</span>
+<span class="fc" id="L161">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

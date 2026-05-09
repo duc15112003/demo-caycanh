@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorCode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.exception</a> &gt; <span class="el_source">ErrorCode.java</span></div><h1>ErrorCode.java</h1><pre class="source lang-java linenums">package ceb.exception;
+
+<span class="fc" id="L3">public enum ErrorCode {</span>
+
+<span class="fc" id="L5">    UNKNOWN_ERROR(&quot;000&quot;, &quot;Generic/Technical Error&quot;),</span>
+<span class="fc" id="L6">    VALIDATION_ERROR(&quot;001&quot;, &quot;Invalid required fields: %s&quot;),</span>
+<span class="fc" id="L7">    BAD_REQUEST(&quot;400&quot;, &quot;%s&quot;),</span>
+<span class="fc" id="L8">    RESOURCE_NOT_FOUND(&quot;404&quot;, &quot;%s&quot;),</span>
+<span class="fc" id="L9">    UNAUTHORIZED(&quot;401&quot;, &quot;%s&quot;),</span>
+
+<span class="fc" id="L11">    INVALID_REGISTRATION(&quot;100&quot;, &quot;Thong tin dang ky khong hop le&quot;),</span>
+<span class="fc" id="L12">    EMAIL_REQUIRED(&quot;101&quot;, &quot;Email khong duoc de trong&quot;),</span>
+<span class="fc" id="L13">    PASSWORD_REQUIRED(&quot;102&quot;, &quot;Mat khau khong duoc de trong&quot;),</span>
+<span class="fc" id="L14">    EMAIL_ALREADY_EXISTS(&quot;103&quot;, &quot;Email da ton tai&quot;),</span>
+<span class="fc" id="L15">    PHONE_ALREADY_EXISTS(&quot;110&quot;, &quot;So dien thoai da ton tai&quot;),</span>
+<span class="fc" id="L16">    ACCOUNT_CREATION_FAILED(&quot;104&quot;, &quot;Khong the tao tai khoan&quot;),</span>
+<span class="fc" id="L17">    USER_NOT_FOUND(&quot;105&quot;, &quot;User khong ton tai&quot;),</span>
+<span class="fc" id="L18">    INVALID_CREDENTIALS(&quot;106&quot;, &quot;Sai ten dang nhap hoac mat khau&quot;),</span>
+<span class="fc" id="L19">    AUTHENTICATION_REQUIRED(&quot;107&quot;, &quot;Nguoi dung chua dang nhap&quot;),</span>
+<span class="fc" id="L20">    CURRENT_USER_UNAVAILABLE(&quot;108&quot;, &quot;Khong lay duoc thong tin nguoi dung hien tai&quot;),</span>
+<span class="fc" id="L21">    USER_DISABLED(&quot;109&quot;, &quot;Tai khoan da bi vo hieu hoa&quot;),</span>
+<span class="fc" id="L22">    CURRENT_PASSWORD_INCORRECT(&quot;111&quot;, &quot;Mat khau hien tai khong dung&quot;),</span>
+<span class="fc" id="L23">    PASSWORD_RESET_TOKEN_INVALID(&quot;114&quot;, &quot;Token dat lai mat khau khong hop le&quot;),</span>
+<span class="fc" id="L24">    EMAIL_SEND_FAILED(&quot;115&quot;, &quot;Khong the gui email xac thuc&quot;),</span>
+
+<span class="fc" id="L26">    PRODUCT_NOT_FOUND(&quot;200&quot;, &quot;Khong tim thay san pham voi id = %s&quot;),</span>
+<span class="fc" id="L27">    INVALID_PRODUCT(&quot;201&quot;, &quot;Thong tin san pham khong hop le&quot;),</span>
+<span class="fc" id="L28">    INVALID_PRODUCT_CATEGORY(&quot;202&quot;, &quot;Danh muc san pham khong hop le&quot;),</span>
+<span class="fc" id="L29">    PRODUCT_NAME_REQUIRED(&quot;203&quot;, &quot;Ten san pham khong duoc de trong&quot;),</span>
+<span class="fc" id="L30">    INVALID_PRODUCT_PRICE(&quot;204&quot;, &quot;Gia san pham phai lon hon 0&quot;),</span>
+<span class="fc" id="L31">    INVALID_PRODUCT_STOCK(&quot;205&quot;, &quot;So luong ton kho khong hop le&quot;),</span>
+<span class="fc" id="L32">    KEYWORD_REQUIRED(&quot;206&quot;, &quot;Keyword khong duoc de trong&quot;),</span>
+<span class="fc" id="L33">    LIMIT_MUST_BE_POSITIVE(&quot;207&quot;, &quot;Limit phai lon hon 0&quot;),</span>
+
+<span class="fc" id="L35">    CATEGORY_NOT_FOUND(&quot;300&quot;, &quot;Khong tim thay danh muc voi id = %s&quot;),</span>
+<span class="fc" id="L36">    CATEGORY_NAME_REQUIRED(&quot;301&quot;, &quot;Ten danh muc khong duoc de trong&quot;),</span>
+
+<span class="fc" id="L38">    QUANTITY_MUST_BE_POSITIVE(&quot;4001&quot;, &quot;So luong phai lon hon 0&quot;),</span>
+<span class="fc" id="L39">    CART_ITEM_NOT_FOUND(&quot;4002&quot;, &quot;Khong tim thay cart item voi id = %s&quot;),</span>
+<span class="fc" id="L40">    CART_ITEM_NOT_OWNED(&quot;4003&quot;, &quot;Cart item khong thuoc user hien tai&quot;),</span>
+<span class="fc" id="L41">    EMPTY_CART(&quot;4004&quot;, &quot;Gio hang dang trong&quot;),</span>
+
+<span class="fc" id="L43">    SHIPPING_ADDRESS_REQUIRED(&quot;500&quot;, &quot;Dia chi giao hang khong duoc de trong&quot;),</span>
+<span class="fc" id="L44">    ORDER_NOT_FOUND(&quot;501&quot;, &quot;Khong tim thay don hang voi id = %s&quot;),</span>
+<span class="fc" id="L45">    ORDER_STATUS_REQUIRED(&quot;502&quot;, &quot;Trang thai khong duoc de trong&quot;),</span>
+<span class="fc" id="L46">    ORDER_ACCESS_DENIED(&quot;503&quot;, &quot;Ban khong co quyen truy cap don hang nay&quot;),</span>
+
+<span class="fc" id="L48">    INVALID_PAYMENT(&quot;600&quot;, &quot;Thong tin thanh toan khong hop le&quot;),</span>
+<span class="fc" id="L49">    PAYMENT_METHOD_REQUIRED(&quot;601&quot;, &quot;Phuong thuc thanh toan khong duoc de trong&quot;),</span>
+<span class="fc" id="L50">    PAYMENT_NOT_FOUND(&quot;602&quot;, &quot;Khong tim thay giao dich voi id = %s&quot;),</span>
+
+<span class="fc" id="L52">    ACCESS_DENIED(&quot;700&quot;, &quot;Ban khong co quyen truy cap tai nguyen nay&quot;),</span>
+<span class="fc" id="L53">    JWT_TOKEN_EXPIRED(&quot;701&quot;, &quot;JWT token da het han&quot;),</span>
+<span class="fc" id="L54">    INVALID_JWT_TOKEN(&quot;702&quot;, &quot;JWT token khong hop le&quot;),</span>
+<span class="fc" id="L55">    TOKEN_USER_MISMATCH(&quot;703&quot;, &quot;Thong tin trong token khong khop voi user trong he thong&quot;),</span>
+
+<span class="fc" id="L57">    FILE_EMPTY(&quot;800&quot;, &quot;File anh/video khong duoc de trong&quot;),</span>
+<span class="fc" id="L58">    FILE_UPLOAD_FAILED(&quot;801&quot;, &quot;Loi trong qua trinh tai file len Cloudinary&quot;);</span>
+
+    private final String code;
+    private final String message;
+
+<span class="fc" id="L63">    ErrorCode(String code, String message) {</span>
+<span class="fc" id="L64">        this.code = code;</span>
+<span class="fc" id="L65">        this.message = message;</span>
+<span class="fc" id="L66">    }</span>
+
+    public String getCode() {
+<span class="fc" id="L69">        return code;</span>
+    }
+
+    public String getMessage() {
+<span class="fc" id="L73">        return message;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

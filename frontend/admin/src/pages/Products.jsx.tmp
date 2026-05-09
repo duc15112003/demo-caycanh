@@ -1,0 +1,342 @@
+import React, { useEffect, useState } from 'react';
+import /* type { Product } */ from '../types';
+import { toast } from 'react-toastify';
+import { apiService } from '../services/api';
+
+/* type CategoryOption = { categoryId: number; categoryName: string } */;
+
+const Products: = () => {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState('');
+  const [newProduct, setNewProduct] = useState({
+    productName: '',
+    description: '',
+    careGuide: '',
+    price: '',
+    stock: '',
+    categoryId: 0,
+    imageUrl: '',
+    imageFile: nullile | null,
+    active: true,
+  });
+
+  useEffect(() => {
+    if (!isModalOpen) {
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+      setImagePreviewUrl('');
+      return;
+    }
+
+    if (newProduct.imageFile) {
+      const url = URL.createObjectURL(newProduct.imageFile);
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+      setImagePreviewUrl(url);
+      return;
+    }
+
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+      setImagePreviewUrl('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newProduct.imageFile, isModalOpen]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const cats = await apiService.getCategories();
+        const prods = await apiService.getProducts();
+        const catOptions = (cats || [])
+          .filter((c: any) => c?.categoryId != null)
+          .map((c: any) => ({ categoryId: Number(c.categoryId), categoryName: c.categoryName || `#${c.categoryId}` }));
+
+        setCategories(catOptions);
+
+        const categoryNameById = new Map(catOptions.map((c) => [c.categoryId, c.categoryName]));
+        const mapped = (prods || [])
+          .filter((p: any) => p?.productId != null)
+          .map((p: any) => ({
+            id: String(p.productId),
+            name: p.productName || '(Không tên)',
+            price: p.price ?? 0,
+            stock: p.stock ?? 0,
+            image: p.image || undefined,
+            category: categoryNameById.get(Number(p.categoryId)) || `#${p.categoryId ?? ''}`,
+          }));
+
+        setProducts(mapped);
+
+        // set default categoryId for modal
+        setNewProduct((prev) => ({
+          ...prev,
+          categoryId: prev.categoryId || (catOptions[0]?.categoryId ?? 0),
+        }));
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast.error(error instanceof Error ? error.message : 'Không thể tải danh sách sản phẩm.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (!newProduct.categoryId) {
+        toast.error('Vui lòng chọn danh mục.');
+        return;
+      }
+
+      const created = await apiService.createProduct({
+        categoryId: Number(newProduct.categoryId),
+        productName: newProduct.productName,
+        description: newProduct.description.trim() ? newProduct.description : null,
+        careGuide: newProduct.careGuide.trim() ? newProduct.careGuide : null,
+        price: Number(newProduct.price),
+        stock: Number(newProduct.stock),
+        image: newProduct.imageFile || (newProduct.imageUrl.trim() ? newProduct.imageUrl.trim() : null),
+        active: Boolean(newProduct.active),
+      });
+
+      const categoryName = categories.find((c) => c.categoryId === Number(created.categoryId))?.categoryName || `#${created.categoryId ?? ''}`;
+      const product = {
+        id: String(created.productId ?? ''),
+        name: created.productName || newProduct.productName,
+        price: created.price ?? Number(newProduct.price),
+        stock: created.stock ?? Number(newProduct.stock),
+        image: created.image || undefined,
+        category: categoryName,
+      };
+
+      setProducts([product, ...products]);
+      setIsModalOpen(false);
+      setNewProduct({
+        productName: '',
+        description: '',
+        careGuide: '',
+        price: '',
+        stock: '',
+        categoryId: categories[0]?.categoryId ?? 0,
+        imageUrl: '',
+        imageFile: null,
+        active: true,
+      });
+      toast.success('Thêm sản phẩm thành công!');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Thêm sản phẩm thất bại.');
+    }
+  };
+
+  if (loading) {
+    return Đang tải...;
+  }
+
+  return (
+    
+      
+        
+          Sản phẩm
+          Quản lý kho hàng cây cảnh và dụng cụ của bạn.
+        
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-primary text-white px-6 py-3.5 rounded-2xl font-black shadow-xl shadow-primary/25 hover:opacity-95 active:scale-95 transition-all flex items-center justify-center space-x-2 w-full sm:w-auto text-sm md:text-base"
+        >
+          
+          Thêm cây cảnh
+        
+      
+
+      
+        {products.map((product) => (
+          
+            
+              <img 
+                src={product.image || 'https://images.unsplash.com/photo-1501004318641-729e8439a7e7?auto=format&fit=crop&w=800&q=80'} 
+                alt={product.name}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              />
+              
+                
+                  {product.category}
+                
+              
+            
+            
+              {product.name}
+              Mã: {product.id}
+              
+                
+                  đ{product.price.toLocaleString()}
+                  
+                    Tồn kho: {product.stock} sản phẩm
+                  
+                
+                
+                  
+                
+              
+            
+          
+        ))}
+      
+
+      {/* Add Product Modal */}
+      {isModalOpen && (
+        
+           setIsModalOpen(false)}>
+          
+            
+              Thêm sản phẩm mới
+               setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
+                
+              
+            
+            
+              
+                Tên sản phẩm
+                <input 
+                  required
+                  type="text" 
+                  value={newProduct.productName}
+                  onChange={e => setNewProduct({...newProduct, productName: e.target.value})}
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-text" 
+                  placeholder="Ví dụ: Cây Tùng Bách..."
+                />
+              
+              
+                Mô tả
+                <textarea
+                  value={newProduct.description}
+                  onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-text min-h-[110px] resize-y"
+                  placeholder="Mô tả ngắn về sản phẩm..."
+                />
+              
+              
+                Hướng dẫn chăm sóc
+                <textarea
+                  value={newProduct.careGuide}
+                  onChange={(e) => setNewProduct({ ...newProduct, careGuide: e.target.value })}
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-text min-h-[110px] resize-y"
+                  placeholder="Ánh sáng, tưới nước, đất trồng..."
+                />
+              
+              
+                
+                  Giá bán (đ)
+                  <input 
+                    required
+                    type="number" 
+                    value={newProduct.price}
+                    onChange={e => setNewProduct({...newProduct, price: e.target.value})}
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-text" 
+                  />
+                
+                
+                  Số lượng
+                  <input 
+                    required
+                    type="number" 
+                    value={newProduct.stock}
+                    onChange={e => setNewProduct({...newProduct, stock: e.target.value})}
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-text" 
+                  />
+                
+              
+              
+                
+                  Danh mục
+                  <select 
+                    value={newProduct.categoryId}
+                    onChange={e => setNewProduct({...newProduct, categoryId: Number(e.target.value)})}
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-text appearance-none"
+                  >
+                    {categories.length === 0 ? (
+                      Chưa có danh mục
+                    ) : (
+                      categories.map((c) => (
+                        
+                          {c.categoryName}
+                        
+                      ))
+                    )}
+                  
+                
+                
+                  Trạng thái
+                  <button
+                    type="button"
+                    onClick={() => setNewProduct({ ...newProduct, active: !newProduct.active })}
+                    className={`w-full px-5 py-4 rounded-2xl border font-black transition-all ${
+                      newProduct.active
+                        ? 'bg-emerald-50 border-emerald-100 text-emerald-600'
+                        : 'bg-rose-50 border-rose-100 text-rose-600'
+                    }`}
+                    aria-pressed={newProduct.active}
+                  >
+                    {newProduct.active ? 'Đang bán (active)' : 'Ẩn (inactive)'}
+                  
+                
+              
+              
+                Ảnh sản phẩm
+                
+                  
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setNewProduct({ ...newProduct, imageFile: file });
+                      }}
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-text"
+                    />
+                    <input 
+                      type="text" 
+                      value={newProduct.imageUrl}
+                      onChange={e => setNewProduct({...newProduct, imageUrl: e.target.value})}
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-text" 
+                      placeholder="Hoặc dán URL ảnh (nếu backend nhận string)"
+                    />
+                    
+                      Ưu tiên: chọn file (multipart). Nếu không chọn file, hệ thống sẽ dùng URL nếu có.
+                    
+                  
+
+                  
+                    
+                      <img
+                        src={
+                          imagePreviewUrl ||
+                          newProduct.imageUrl ||
+                          'https://images.unsplash.com/photo-1501004318641-729e8439a7e7?auto=format&fit=crop&w=600&q=80'
+                        }
+                        alt="preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTargetTMLImageElement).src =
+                            'https://images.unsplash.com/photo-1501004318641-729e8439a7e7?auto=format&fit=crop&w=600&q=80';
+                        }}
+                      />
+                    
+                  
+                
+              
+              
+                Xác nhận thêm
+              
+            
+          
+        
+      )}
+    
+  );
+};
+
+export default Products;

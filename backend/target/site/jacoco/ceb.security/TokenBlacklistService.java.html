@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TokenBlacklistService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.security</a> &gt; <span class="el_source">TokenBlacklistService.java</span></div><h1>TokenBlacklistService.java</h1><pre class="source lang-java linenums">package ceb.security;
+
+import java.time.Instant;
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import javax.crypto.SecretKey;
+
+/**
+ * Service quản lý blacklist token
+ * Khi user logout, token sẽ được thêm vào blacklist
+ * Mọi request sử dụng token blacklist sẽ bị từ chối
+ */
+@Service
+<span class="fc" id="L20">public class TokenBlacklistService {</span>
+
+<span class="fc" id="L22">    private final ConcurrentHashMap&lt;String, Long&gt; blacklistedTokens = new ConcurrentHashMap&lt;&gt;();</span>
+
+    /**
+     * Thêm token vào blacklist
+     * @param token JWT token cần blacklist
+     * @param expirationTime Thời gian hết hạn của token (Unix timestamp)
+     */
+    public void blacklistToken(String token, long expirationTime) {
+<span class="fc" id="L30">        blacklistedTokens.put(token, expirationTime);</span>
+<span class="fc" id="L31">    }</span>
+
+    /**
+     * Kiểm tra token có bị blacklist hay không
+     * @param token JWT token cần kiểm tra
+     * @return true nếu token đã bị blacklist, false nếu chưa
+     */
+    public boolean isTokenBlacklisted(String token) {
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if (blacklistedTokens.containsKey(token)) {</span>
+<span class="fc" id="L40">            Long expirationTime = blacklistedTokens.get(token);</span>
+<span class="fc" id="L41">            long currentTime = System.currentTimeMillis();</span>
+
+            // Nếu token đã hết hạn, xóa khỏi blacklist (optional optimization)
+<span class="fc bfc" id="L44" title="All 2 branches covered.">            if (currentTime &gt; expirationTime) {</span>
+<span class="fc" id="L45">                blacklistedTokens.remove(token);</span>
+<span class="fc" id="L46">                return false;</span>
+            }
+<span class="fc" id="L48">            return true;</span>
+        }
+<span class="nc" id="L50">        return false;</span>
+    }
+
+    /**
+     * Lấy kích thước hiện tại của blacklist (cho monitoring/debugging)
+     */
+    public int getBlacklistSize() {
+<span class="fc" id="L57">        return blacklistedTokens.size();</span>
+    }
+
+    /**
+     * Clear toàn bộ blacklist (sử dụng cho testing hoặc admin operations)
+     */
+    public void clearBlacklist() {
+<span class="fc" id="L64">        blacklistedTokens.clear();</span>
+<span class="fc" id="L65">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

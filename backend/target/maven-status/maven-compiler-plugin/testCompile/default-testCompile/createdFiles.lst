@@ -1,0 +1,16 @@
+ceb\security\SecurityUtilValidationTest.class
+ceb\service\CatalogAndCartServiceTest.class
+ceb\config\ConfigTest$TestServletInitializer.class
+ceb\controller\AuthAdminExceptionControllerTest.class
+ceb\exception\ExceptionCoverageTest$TestHandler.class
+ceb\service\AuthServiceImplTest.class
+ceb\service\MailOtpAndUploadServiceTest.class
+ceb\service\OrderAndPaymentServiceTest.class
+ceb\config\ConfigTest.class
+ceb\repository\RepositoryIntegrationTest.class
+ceb\domain\DomainBeanAndResponseTest.class
+ceb\exception\ExceptionCoverageTest.class
+ceb\TestData.class
+ceb\controller\ControllerUnitTest.class
+ceb\service\UserWishlistAndDashboardServiceTest.class
+ceb\CayCanhApplicationTests.class

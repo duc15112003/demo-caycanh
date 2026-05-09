@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OtpMailServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.service.implement</a> &gt; <span class="el_source">OtpMailServiceImpl.java</span></div><h1>OtpMailServiceImpl.java</h1><pre class="source lang-java linenums">package ceb.service.implement;
+
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+
+import ceb.domain.res.SendOtpResponse;
+import ceb.exception.BadRequestException;
+import ceb.exception.EmailSendFailedException;
+import ceb.exception.UserNotFoundException;
+import ceb.repository.UsersRepository;
+import ceb.service.service.MailTemplateService;
+import ceb.service.service.OtpMailService;
+import jakarta.mail.internet.MimeMessage;
+
+@Service
+public class OtpMailServiceImpl implements OtpMailService {
+
+<span class="fc" id="L25">    private static final SecureRandom RANDOM = new SecureRandom();</span>
+
+    private final JavaMailSender mailSender;
+    private final String fromEmail;
+    private final long otpTtlSeconds;
+    private final long resendCooldownSeconds;
+    private final int maxResends;
+    private final MailTemplateService mailTemplateService;
+    private final UsersRepository usersRepository;
+<span class="fc" id="L34">    private final Map&lt;String, OtpState&gt; otpStates = new ConcurrentHashMap&lt;&gt;();</span>
+
+    public OtpMailServiceImpl(
+            JavaMailSender mailSender,
+            @Value(&quot;${spring.mail.username}&quot;) String fromEmail,
+            @Value(&quot;${app.auth.otp.expiration-seconds:300}&quot;) long otpTtlSeconds,
+            @Value(&quot;${app.auth.otp.resend-cooldown-seconds:120}&quot;) long resendCooldownSeconds,
+            @Value(&quot;${app.auth.otp.max-resends:5}&quot;) int maxResends,
+            MailTemplateService mailTemplateService,
+<span class="fc" id="L43">            UsersRepository usersRepository) {</span>
+<span class="fc" id="L44">        this.mailSender = mailSender;</span>
+<span class="fc" id="L45">        this.fromEmail = fromEmail;</span>
+<span class="fc" id="L46">        this.otpTtlSeconds = otpTtlSeconds;</span>
+<span class="fc" id="L47">        this.resendCooldownSeconds = resendCooldownSeconds;</span>
+<span class="fc" id="L48">        this.maxResends = maxResends;</span>
+<span class="fc" id="L49">        this.mailTemplateService = mailTemplateService;</span>
+<span class="fc" id="L50">        this.usersRepository = usersRepository;</span>
+<span class="fc" id="L51">    }</span>
+
+    @Override
+    public SendOtpResponse sendOtp(String email) {
+<span class="fc" id="L55">        String normalizedEmail = email.trim().toLowerCase();</span>
+<span class="fc" id="L56">        usersRepository.findByEmail(normalizedEmail)</span>
+<span class="fc" id="L57">                .orElseThrow(UserNotFoundException::new);</span>
+
+<span class="fc" id="L59">        synchronized (normalizedEmail.intern()) {</span>
+<span class="fc" id="L60">            Instant now = Instant.now();</span>
+<span class="fc" id="L61">            OtpState previousState = otpStates.get(normalizedEmail);</span>
+
+<span class="fc" id="L63">            OtpState state = createNextState(previousState, now);</span>
+
+<span class="fc" id="L65">            sendMail(normalizedEmail, state.code(), state.expiresAt());</span>
+<span class="fc" id="L66">            otpStates.put(normalizedEmail, state);</span>
+
+<span class="fc" id="L68">            return new SendOtpResponse(</span>
+                    &quot;OTP da duoc gui den email&quot;,
+<span class="fc" id="L70">                    Math.max(0, state.expiresAt().getEpochSecond() - now.getEpochSecond()),</span>
+                    resendCooldownSeconds,
+<span class="fc" id="L72">                    Math.max(0, maxResends - state.resendCount()));</span>
+        }
+    }
+
+    @Override
+    public void verifyOtp(String email, String otp) {
+<span class="fc" id="L78">        String normalizedEmail = email.trim().toLowerCase();</span>
+<span class="fc" id="L79">        synchronized (normalizedEmail.intern()) {</span>
+<span class="fc" id="L80">            Instant now = Instant.now();</span>
+<span class="fc" id="L81">            OtpState state = otpStates.get(normalizedEmail);</span>
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            if (state == null) {</span>
+<span class="fc" id="L84">                throw new BadRequestException(&quot;Khong tim thay OTP hoac OTP chua duoc gui&quot;);</span>
+            }
+
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">            if (now.isAfter(state.expiresAt())) {</span>
+<span class="nc" id="L88">                otpStates.remove(normalizedEmail);</span>
+<span class="nc" id="L89">                throw new BadRequestException(&quot;OTP da het han&quot;);</span>
+            }
+
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">            if (!state.code().equals(otp.trim())) {</span>
+<span class="nc" id="L93">                throw new BadRequestException(&quot;OTP khong chinh xac&quot;);</span>
+            }
+
+<span class="fc" id="L96">            otpStates.remove(normalizedEmail);</span>
+<span class="fc" id="L97">        }</span>
+<span class="fc" id="L98">    }</span>
+
+    private OtpState createNextState(OtpState current, Instant now) {
+<span class="pc bpc" id="L101" title="1 of 4 branches missed.">        if (current == null || now.isAfter(current.expiresAt())) {</span>
+<span class="fc" id="L102">            return new OtpState(generateOtp(), now.plusSeconds(otpTtlSeconds), now.plusSeconds(resendCooldownSeconds), 0);</span>
+        }
+
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (now.isBefore(current.nextAllowedResendAt())) {</span>
+<span class="fc" id="L106">            long secondsLeft = Math.max(1, current.nextAllowedResendAt().getEpochSecond() - now.getEpochSecond());</span>
+<span class="fc" id="L107">            throw new BadRequestException(&quot;Chi duoc gui lai OTP sau %s giay&quot;.formatted(secondsLeft));</span>
+        }
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (current.resendCount() &gt;= maxResends) {</span>
+<span class="nc" id="L111">            throw new BadRequestException(&quot;Da vuot qua so lan gui lai OTP toi da&quot;);</span>
+        }
+
+<span class="nc" id="L114">        return new OtpState(</span>
+<span class="nc" id="L115">                generateOtp(),</span>
+<span class="nc" id="L116">                now.plusSeconds(otpTtlSeconds),</span>
+<span class="nc" id="L117">                now.plusSeconds(resendCooldownSeconds),</span>
+<span class="nc" id="L118">                current.resendCount() + 1);</span>
+    }
+
+    private void sendMail(String email, String otp, Instant expiresAt) {
+<span class="fc" id="L122">        String html = mailTemplateService.buildOtpEmail(otp, expiresAt, resendCooldownSeconds);</span>
+
+        try {
+<span class="fc" id="L125">            MimeMessage message = mailSender.createMimeMessage();</span>
+<span class="fc" id="L126">            MimeMessageHelper helper = new MimeMessageHelper(message, &quot;UTF-8&quot;);</span>
+<span class="fc" id="L127">            helper.setFrom(fromEmail);</span>
+<span class="fc" id="L128">            helper.setTo(email);</span>
+<span class="fc" id="L129">            helper.setSubject(&quot;Ma OTP xac thuc&quot;);</span>
+<span class="fc" id="L130">            helper.setText(html, true);</span>
+<span class="fc" id="L131">            mailSender.send(message);</span>
+<span class="nc" id="L132">        } catch (Exception ex) {</span>
+<span class="nc" id="L133">            throw new EmailSendFailedException(ex);</span>
+<span class="fc" id="L134">        }</span>
+<span class="fc" id="L135">    }</span>
+
+    private String generateOtp() {
+<span class="fc" id="L138">        return String.format(&quot;%06d&quot;, RANDOM.nextInt(1_000_000));</span>
+    }
+
+<span class="fc" id="L141">    private record OtpState(</span>
+            String code,
+            Instant expiresAt,
+            Instant nextAllowedResendAt,
+            int resendCount) {
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

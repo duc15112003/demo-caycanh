@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WishlistController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.controller</a> &gt; <span class="el_source">WishlistController.java</span></div><h1>WishlistController.java</h1><pre class="source lang-java linenums">package ceb.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import ceb.domain.model.Products;
+import ceb.domain.res.ProductResponse;
+import ceb.domain.res.WishlistOperationResponse;
+import ceb.domain.res.WishlistResponse;
+import ceb.service.service.CurrentUserService;
+import ceb.service.service.WishlistService;
+import jakarta.validation.constraints.Positive;
+
+@Validated
+@RestController
+@RequestMapping(&quot;/api/wishlist&quot;)
+public class WishlistController {
+
+    private final WishlistService wishlistService;
+    private final CurrentUserService currentUserService;
+
+<span class="fc" id="L30">    public WishlistController(WishlistService wishlistService, CurrentUserService currentUserService) {</span>
+<span class="fc" id="L31">        this.wishlistService = wishlistService;</span>
+<span class="fc" id="L32">        this.currentUserService = currentUserService;</span>
+<span class="fc" id="L33">    }</span>
+
+    @GetMapping
+    public WishlistResponse getWishlist(Authentication authentication) {
+<span class="fc" id="L37">        int userId = currentUserService.getCurrentUserId(authentication);</span>
+<span class="fc" id="L38">        return new WishlistResponse(</span>
+<span class="fc" id="L39">                wishlistService.getWishlist(userId).stream().map(ProductResponse::from).toList(),</span>
+<span class="fc" id="L40">                wishlistService.count(userId));</span>
+    }
+
+    @PostMapping(&quot;/{productId}&quot;)
+    @ResponseStatus(HttpStatus.CREATED)
+    public WishlistOperationResponse add(
+            Authentication authentication,
+            @PathVariable @Positive(message = &quot;Product id phai lon hon 0&quot;) int productId) {
+<span class="fc" id="L48">        int userId = currentUserService.getCurrentUserId(authentication);</span>
+<span class="fc" id="L49">        Products product = wishlistService.add(userId, productId);</span>
+<span class="fc" id="L50">        return new WishlistOperationResponse(</span>
+                &quot;Them vao wishlist thanh cong&quot;,
+<span class="fc" id="L52">                ProductResponse.from(product),</span>
+<span class="fc" id="L53">                wishlistService.count(userId));</span>
+    }
+
+    @DeleteMapping(&quot;/{productId}&quot;)
+    public WishlistOperationResponse remove(
+            Authentication authentication,
+            @PathVariable @Positive(message = &quot;Product id phai lon hon 0&quot;) int productId) {
+<span class="fc" id="L60">        int userId = currentUserService.getCurrentUserId(authentication);</span>
+<span class="fc" id="L61">        wishlistService.remove(userId, productId);</span>
+<span class="fc" id="L62">        return new WishlistOperationResponse(&quot;Xoa khoi wishlist thanh cong&quot;, null, wishlistService.count(userId));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

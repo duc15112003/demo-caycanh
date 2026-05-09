@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtCookieService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.security</a> &gt; <span class="el_source">JwtCookieService.java</span></div><h1>JwtCookieService.java</h1><pre class="source lang-java linenums">package ceb.security;
+
+import java.time.Duration;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+
+/**
+ * JWT Cookie Service - Xử lý tạo, xóa và đọc JWT cookie với cấu hình bảo mật.
+ * 
+ * Cookie attributes bảo mật:
+ * - HttpOnly: true - Ngăn JavaScript truy cập, chỉ gửi qua HTTP(S)
+ * - Secure: true (prod), false (dev) - Chỉ gửi qua HTTPS
+ * - SameSite: Strict/Lax - CSRF protection, chỉ gửi cùng site
+ * - Path: /api - Scope tối thiểu, chỉ gửi khi request /api/**
+ * - Domain: localhost/example.com - Scope tối thiểu, chỉ gửi cho domain cụ thể
+ */
+@Component
+public class JwtCookieService {
+
+    private final String cookieName;
+    private final String cookiePath;
+    private final String cookieDomain;
+    private final boolean secure;
+    private final String sameSite;
+    private final JwtService jwtService;
+
+    public JwtCookieService(
+            @Value(&quot;${app.jwt.cookie.name:access_token}&quot;) String cookieName,
+            @Value(&quot;${app.jwt.cookie.path:/api}&quot;) String cookiePath,
+            @Value(&quot;${app.jwt.cookie.domain:localhost}&quot;) String cookieDomain,
+            @Value(&quot;${app.jwt.cookie.secure:false}&quot;) boolean secure,
+            @Value(&quot;${app.jwt.cookie.same-site:Strict}&quot;) String sameSite,
+<span class="fc" id="L41">            JwtService jwtService) {</span>
+<span class="fc" id="L42">        this.cookieName = cookieName;</span>
+<span class="fc" id="L43">        this.cookiePath = cookiePath;</span>
+<span class="fc" id="L44">        this.cookieDomain = cookieDomain;</span>
+<span class="fc" id="L45">        this.secure = secure;</span>
+<span class="fc" id="L46">        this.sameSite = sameSite;</span>
+<span class="fc" id="L47">        this.jwtService = jwtService;</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * Tạo Access Token Cookie với attributes bảo mật.
+     * 
+     * HttpOnly: true - JS không đọc được (hiện trong DevTools nhưng JS không thể truy cập)
+     * Secure: chỉ gửi qua HTTPS (prod), HTTP được (dev)
+     * SameSite: Strict (ngặt nhất) hoặc Lax - CSRF protection
+     * Path: /api - chỉ gửi khi request /api/** endpoints
+     * Domain: localhost - chỉ gửi cho domain cụ thể
+     */
+    public String createAccessTokenCookie(String token) {
+<span class="fc" id="L60">        return ResponseCookie.from(cookieName, token)</span>
+<span class="fc" id="L61">                .httpOnly(true)</span>
+<span class="fc" id="L62">                .secure(secure)</span>
+<span class="fc" id="L63">                .path(cookiePath)</span>
+<span class="fc" id="L64">                .domain(cookieDomain)</span>
+<span class="fc" id="L65">                .sameSite(sameSite)</span>
+<span class="fc" id="L66">                .maxAge(Duration.ofMillis(jwtService.getExpirationMs()))</span>
+<span class="fc" id="L67">                .build()</span>
+<span class="fc" id="L68">                .toString();</span>
+    }
+
+    public String clearAccessTokenCookie() {
+<span class="fc" id="L72">        return ResponseCookie.from(cookieName, &quot;&quot;)</span>
+<span class="fc" id="L73">                .httpOnly(true)</span>
+<span class="fc" id="L74">                .secure(secure)</span>
+<span class="fc" id="L75">                .path(cookiePath)</span>
+<span class="fc" id="L76">                .domain(cookieDomain)</span>
+<span class="fc" id="L77">                .sameSite(sameSite)</span>
+<span class="fc" id="L78">                .maxAge(Duration.ZERO)</span>
+<span class="fc" id="L79">                .build()</span>
+<span class="fc" id="L80">                .toString();</span>
+    }
+
+    public Optional&lt;String&gt; resolveToken(HttpServletRequest request) {
+<span class="fc" id="L84">        Cookie[] cookies = request.getCookies();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (cookies != null) {</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">            for (Cookie cookie : cookies) {</span>
+<span class="pc bpc" id="L87" title="2 of 4 branches missed.">                if (cookieName.equals(cookie.getName()) &amp;&amp; StringUtils.hasText(cookie.getValue())) {</span>
+<span class="fc" id="L88">                    return Optional.of(cookie.getValue());</span>
+                }
+            }
+        }
+
+<span class="fc" id="L93">        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);</span>
+<span class="pc bpc" id="L94" title="2 of 4 branches missed.">        if (StringUtils.hasText(authorizationHeader) &amp;&amp; authorizationHeader.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="fc" id="L95">            return Optional.of(authorizationHeader.substring(7));</span>
+        }
+
+<span class="nc" id="L98">        return Optional.empty();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

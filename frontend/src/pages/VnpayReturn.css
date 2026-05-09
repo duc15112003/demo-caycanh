@@ -1,0 +1,142 @@
+﻿.vnpay-return-page {
+  padding: 48px 20px 60px;
+  background: linear-gradient(160deg, #eef7f1 0%, #f9fcfa 48%, #edf5ef 100%);
+}
+
+.vnpay-return-shell {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.vnpay-status-card {
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid #e2ece5;
+  box-shadow: 0 12px 30px rgba(27, 54, 39, 0.1);
+  padding: 34px 28px;
+  text-align: center;
+}
+
+.vnpay-status-card h1 {
+  font-size: 30px;
+  color: #1c3f31;
+  margin: 12px 0;
+}
+
+.vnpay-status-card p {
+  color: #566f64;
+}
+
+.vnpay-spinner {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 5px solid #deebe3;
+  border-top: 5px solid #2f6f4d;
+  animation: spin 1s linear infinite;
+}
+
+.vnpay-result-icon {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+}
+
+.vnpay-result-icon.success {
+  background: #eaf8f0;
+  color: #2f6f4d;
+}
+
+.vnpay-result-icon.error {
+  background: #fdeeed;
+  color: #ca3c36;
+}
+
+.vnpay-meta-box {
+  margin-top: 16px;
+  border: 1px solid #e1ebe4;
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: left;
+  background: #fbfdfc;
+}
+
+.vnpay-meta-box div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px dashed #deebe2;
+}
+
+.vnpay-meta-box div:last-child {
+  border-bottom: 0;
+}
+
+.vnpay-meta-box span {
+  color: #5e786c;
+}
+
+.vnpay-meta-box strong {
+  color: #1f4535;
+}
+
+.vnpay-action-group {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.vnpay-action-group button {
+  min-width: 180px;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 0;
+}
+
+.btn-neutral {
+  background: #f0f4f1;
+  color: #315743;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, #1f5f43, #2a7a55);
+  color: #fff;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .vnpay-return-page {
+    padding: 30px 12px 42px;
+  }
+
+  .vnpay-status-card {
+    padding: 24px 16px;
+  }
+
+  .vnpay-status-card h1 {
+    font-size: 26px;
+  }
+
+  .vnpay-action-group button {
+    width: 100%;
+  }
+}

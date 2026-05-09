@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VnpayCreatePaymentRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.domain.req</a> &gt; <span class="el_source">VnpayCreatePaymentRequest.java</span></div><h1>VnpayCreatePaymentRequest.java</h1><pre class="source lang-java linenums">package ceb.domain.req;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+
+<span class="fc" id="L6">public class VnpayCreatePaymentRequest {</span>
+
+    @Positive(message = &quot;amount phai lon hon 0&quot;)
+    private long amount;
+
+    @NotBlank(message = &quot;orderId khong duoc de trong&quot;)
+    private String orderId;
+
+    public long getAmount() {
+<span class="fc" id="L15">        return amount;</span>
+    }
+
+    public void setAmount(long amount) {
+<span class="fc" id="L19">        this.amount = amount;</span>
+<span class="fc" id="L20">    }</span>
+
+    public String getOrderId() {
+<span class="fc" id="L23">        return orderId;</span>
+    }
+
+    public void setOrderId(String orderId) {
+<span class="fc" id="L27">        this.orderId = orderId;</span>
+<span class="fc" id="L28">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

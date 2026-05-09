@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package ceb.controller;
+
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import ceb.domain.entity.Users;
+import ceb.domain.req.AuthLoginRequest;
+import ceb.domain.req.AuthRegisterRequest;
+import ceb.domain.req.ForgotPasswordRequest;
+import ceb.domain.req.ResetPasswordRequest;
+import ceb.domain.req.SendOtpRequest;
+import ceb.domain.req.VerifyOtpRequest;
+import ceb.domain.res.AuthLoginResponse;
+import ceb.domain.res.AuthRegisterResponse;
+import ceb.domain.res.LogoutResponse;
+import ceb.domain.res.MessageResponse;
+import ceb.domain.res.SendOtpResponse;
+import ceb.domain.res.UserResponse;
+import ceb.exception.DomainException;
+import ceb.security.JwtCookieService;
+import ceb.security.JwtService;
+import ceb.service.service.AuthService;
+import ceb.service.service.OtpMailService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+
+@Validated
+@RestController
+@RequestMapping(&quot;/api/auth&quot;)
+@Tag(name = &quot;Authentication&quot;, description = &quot;API dang ky, dang nhap, dang xuat&quot;)
+public class AuthController {
+    @Lazy
+    private final AuthService authService;
+    @Lazy
+    private final JwtService jwtService;
+    @Lazy
+    private final JwtCookieService jwtCookieService;
+    private final OtpMailService otpMailService;
+
+    public AuthController(
+            AuthService authService,
+            JwtService jwtService,
+            JwtCookieService jwtCookieService,
+<span class="fc" id="L56">            OtpMailService otpMailService) {</span>
+<span class="fc" id="L57">        this.authService = authService;</span>
+<span class="fc" id="L58">        this.jwtService = jwtService;</span>
+<span class="fc" id="L59">        this.jwtCookieService = jwtCookieService;</span>
+<span class="fc" id="L60">        this.otpMailService = otpMailService;</span>
+<span class="fc" id="L61">    }</span>
+
+    @PostMapping(&quot;/register&quot;)
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = &quot;Dang ky tai khoan moi&quot;, description = &quot;Tao tai khoan moi voi email, mat khau, ho ten, so dien thoai, dia chi&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;201&quot;, description = &quot;Dang ky thanh cong&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Du lieu khong hop le&quot;),
+        @ApiResponse(responseCode = &quot;409&quot;, description = &quot;Email da ton tai&quot;)
+    })
+    public AuthRegisterResponse register(@Valid @RequestBody AuthRegisterRequest request) {
+<span class="fc" id="L72">        Users user = new Users();</span>
+<span class="fc" id="L73">        user.setFullName(request.getFullName());</span>
+<span class="fc" id="L74">        user.setEmail(request.getEmail());</span>
+<span class="fc" id="L75">        user.setPassword(request.getPassword());</span>
+<span class="fc" id="L76">        user.setPhone(request.getPhone());</span>
+<span class="fc" id="L77">        user.setAddress(request.getAddress());</span>
+
+<span class="fc" id="L79">        Users createdUser = authService.register(user);</span>
+<span class="fc" id="L80">        return new AuthRegisterResponse(&quot;Dang ky thanh cong&quot;, UserResponse.from(createdUser));</span>
+    }
+
+    @PostMapping(&quot;/login&quot;)
+    @Operation(summary = &quot;Dang nhap&quot;, description = &quot;Dang nhap bang email va mat khau, JWT duoc gan vao HttpOnly cookie&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Dang nhap thanh cong&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Du lieu khong hop le&quot;),
+        @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Email hoac mat khau khong dung&quot;)
+    })
+    public AuthLoginResponse login(@Valid @RequestBody AuthLoginRequest request, HttpServletResponse response) {
+<span class="fc" id="L91">        Users loggedInUser = authService.login(request.getEmail(), request.getPassword());</span>
+<span class="fc" id="L92">        String accessToken = jwtService.generateToken(loggedInUser);</span>
+
+<span class="fc" id="L94">        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookieService.createAccessTokenCookie(accessToken));</span>
+<span class="fc" id="L95">        return new AuthLoginResponse(&quot;Dang nhap thanh cong&quot;, jwtService.getExpirationMs());</span>
+    }
+
+    @PostMapping(&quot;/forgot-password&quot;)
+    @Operation(summary = &quot;Quen mat khau&quot;, description = &quot;Cap nhat mat khau moi truc tiep theo email ma khong can token&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Cap nhat mat khau thanh cong&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Du lieu khong hop le&quot;)
+    })
+    public MessageResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+<span class="fc" id="L105">        authService.requestPasswordReset(request.getEmail(), request.getNewPassword());</span>
+<span class="fc" id="L106">        return new MessageResponse(&quot;Dat lai mat khau thanh cong&quot;);</span>
+    }
+
+    @PostMapping(&quot;/send-otp&quot;)
+    @Operation(summary = &quot;Gui OTP qua email&quot;, description = &quot;Gui OTP den email, moi lan gui lai phai cach nhau 120 giay va toi da 5 lan resend trong mot phien OTP&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Gui OTP thanh cong&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Email khong hop le, chua den thoi gian resend hoac da vuot qua so lan resend&quot;)
+    })
+    public SendOtpResponse sendOtp(@Valid @RequestBody SendOtpRequest request) {
+<span class="fc" id="L116">        return otpMailService.sendOtp(request.getEmail());</span>
+    }
+
+    @PostMapping(&quot;/verify-otp&quot;)
+    @Operation(summary = &quot;Xac thuc OTP&quot;, description = &quot;Kiem tra OTP theo email, OTP dung se bi xoa khoi he thong sau khi verify thanh cong&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Xac thuc OTP thanh cong&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;OTP sai, OTP het han hoac chua co OTP hop le&quot;)
+    })
+    public MessageResponse verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+<span class="fc" id="L126">        otpMailService.verifyOtp(request.getEmail(), request.getOtp());</span>
+<span class="fc" id="L127">        return new MessageResponse(&quot;Xac thuc OTP thanh cong&quot;);</span>
+    }
+
+    @PostMapping(&quot;/reset-password&quot;)
+    @Operation(summary = &quot;Dat lai mat khau&quot;, description = &quot;Cap nhat mat khau moi theo email ma khong can token&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Dat lai mat khau thanh cong&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Du lieu khong hop le&quot;)
+    })
+    public MessageResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+<span class="fc" id="L137">        authService.resetPassword(request.getEmail(), request.getNewPassword());</span>
+<span class="fc" id="L138">        return new MessageResponse(&quot;Dat lai mat khau thanh cong&quot;);</span>
+    }
+
+    @PostMapping(&quot;/logout&quot;)
+    @Operation(summary = &quot;Dang xuat&quot;, description = &quot;Xoa JWT HttpOnly cookie tren trinh duyet va blacklist token neu con hop le&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Dang xuat thanh cong&quot;)
+    })
+    public LogoutResponse logout(HttpServletRequest request, HttpServletResponse response) {
+<span class="fc" id="L147">        String token = jwtCookieService.resolveToken(request).orElse(null);</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (token != null) {</span>
+            try {
+<span class="fc" id="L150">                authService.logout(token);</span>
+<span class="nc" id="L151">            } catch (DomainException ignored) {</span>
+                // Invalid or expired token should not block cookie cleanup.
+<span class="fc" id="L153">            }</span>
+        }
+
+<span class="fc" id="L156">        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookieService.clearAccessTokenCookie());</span>
+<span class="fc" id="L157">        return new LogoutResponse(&quot;Dang xuat thanh cong&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

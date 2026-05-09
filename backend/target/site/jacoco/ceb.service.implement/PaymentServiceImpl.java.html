@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PaymentServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.service.implement</a> &gt; <span class="el_source">PaymentServiceImpl.java</span></div><h1>PaymentServiceImpl.java</h1><pre class="source lang-java linenums">package ceb.service.implement;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.springframework.stereotype.Service;
+
+import ceb.config.VnpayConfig;
+import ceb.domain.model.Orders;
+import ceb.domain.model.Payments;
+import ceb.exception.InvalidPaymentException;
+import ceb.exception.PaymentMethodRequiredException;
+import ceb.exception.PaymentNotFoundException;
+import ceb.exception.VnpayErrorCode;
+import ceb.exception.VnpayException;
+import ceb.repository.OrdersRepository;
+import ceb.repository.PaymentsRepository;
+import ceb.service.service.OrderService;
+import ceb.service.service.PaymentService;
+import ceb.util.VnpayUtils;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+<span class="fc" id="L31">@Slf4j</span>
+public class PaymentServiceImpl implements PaymentService {
+    private static final String ORDER_STATUS_PENDING = &quot;Cho xu ly&quot;;
+    private static final String ORDER_STATUS_SUCCESS = &quot;Da thanh toan&quot;;
+    private static final String ORDER_STATUS_FAILED = &quot;Thanh toan that bai&quot;;
+
+    private final PaymentsRepository paymentsRepository;
+    private final OrderService orderService;
+    private final OrdersRepository ordersRepository;
+    private final VnpayConfig vnpayConfig;
+
+    public PaymentServiceImpl(
+            PaymentsRepository paymentsRepository,
+            OrderService orderService,
+            OrdersRepository ordersRepository,
+<span class="fc" id="L46">            VnpayConfig vnpayConfig) {</span>
+<span class="fc" id="L47">        this.paymentsRepository = paymentsRepository;</span>
+<span class="fc" id="L48">        this.orderService = orderService;</span>
+<span class="fc" id="L49">        this.ordersRepository = ordersRepository;</span>
+<span class="fc" id="L50">        this.vnpayConfig = vnpayConfig;</span>
+<span class="fc" id="L51">    }</span>
+
+    @Override
+    public Payments create(int userId, Payments payment) {
+<span class="pc bpc" id="L55" title="2 of 4 branches missed.">        if (payment == null || payment.getOrderId() &lt;= 0) {</span>
+<span class="nc" id="L56">            throw new InvalidPaymentException();</span>
+        }
+<span class="pc bpc" id="L58" title="2 of 4 branches missed.">        if (payment.getPaymentMethod() == null || payment.getPaymentMethod().isBlank()) {</span>
+<span class="nc" id="L59">            throw new PaymentMethodRequiredException();</span>
+        }
+
+<span class="fc" id="L62">        Orders order = orderService.findByIdForUser(userId, payment.getOrderId());</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (payment.getAmount() &lt;= 0) {</span>
+<span class="fc" id="L64">            payment.setAmount(order.getTotalAmount());</span>
+        }
+
+<span class="fc" id="L67">        int paymentId = paymentsRepository.create(payment);</span>
+<span class="fc" id="L68">        return findByIdForUser(userId, paymentId);</span>
+    }
+
+    @Override
+    public Payments findById(int paymentId) {
+        try {
+<span class="fc" id="L74">            return paymentsRepository.findById(paymentId);</span>
+<span class="nc" id="L75">        } catch (Exception ex) {</span>
+<span class="nc" id="L76">            throw new PaymentNotFoundException(paymentId);</span>
+        }
+    }
+
+    @Override
+    public List&lt;Payments&gt; findByOrderId(int orderId) {
+<span class="nc" id="L82">        orderService.findById(orderId);</span>
+<span class="nc" id="L83">        return paymentsRepository.findByOrderId(orderId);</span>
+    }
+
+    @Override
+    public Payments findByIdForUser(int userId, int paymentId) {
+<span class="fc" id="L88">        Payments payment = findById(paymentId);</span>
+<span class="fc" id="L89">        orderService.findByIdForUser(userId, payment.getOrderId());</span>
+<span class="fc" id="L90">        return payment;</span>
+    }
+
+    @Override
+    public List&lt;Payments&gt; findByOrderIdForUser(int userId, int orderId) {
+<span class="nc" id="L95">        orderService.findByIdForUser(userId, orderId);</span>
+<span class="nc" id="L96">        return paymentsRepository.findByOrderId(orderId);</span>
+    }
+
+    @Override
+    public String createPaymentUrl(long amount, String orderId, String ip) {
+<span class="fc" id="L101">        Orders order = findOrderByTxnRef(orderId);</span>
+
+<span class="fc" id="L103">        long expectedAmountMinorUnit = toMinorUnit(order.getTotalAmount());</span>
+<span class="fc" id="L104">        long requestAmountMinorUnit = toMinorUnit(amount);</span>
+<span class="pc bpc" id="L105" title="2 of 4 branches missed.">        if (amount &lt;= 0 || requestAmountMinorUnit != expectedAmountMinorUnit) {</span>
+<span class="nc" id="L106">            throw new VnpayException(VnpayErrorCode.INVALID_AMOUNT);</span>
+        }
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (!isPending(order.getStatus())) {</span>
+<span class="nc" id="L109">            throw new VnpayException(VnpayErrorCode.ORDER_ALREADY_PROCESSED);</span>
+        }
+
+<span class="fc" id="L112">        TreeMap&lt;String, String&gt; params = new TreeMap&lt;&gt;();</span>
+<span class="fc" id="L113">        params.put(&quot;vnp_Version&quot;, &quot;2.1.0&quot;);</span>
+<span class="fc" id="L114">        params.put(&quot;vnp_Command&quot;, &quot;pay&quot;);</span>
+<span class="fc" id="L115">        params.put(&quot;vnp_TmnCode&quot;, vnpayConfig.getVnpTmnCode());</span>
+<span class="fc" id="L116">        params.put(&quot;vnp_Amount&quot;, String.valueOf(expectedAmountMinorUnit));</span>
+<span class="fc" id="L117">        params.put(&quot;vnp_CurrCode&quot;, &quot;VND&quot;);</span>
+<span class="fc" id="L118">        params.put(&quot;vnp_TxnRef&quot;, orderId);</span>
+<span class="fc" id="L119">        params.put(&quot;vnp_OrderInfo&quot;, &quot;Thanh toan don hang &quot; + orderId);</span>
+<span class="fc" id="L120">        params.put(&quot;vnp_OrderType&quot;, &quot;other&quot;);</span>
+<span class="fc" id="L121">        params.put(&quot;vnp_Locale&quot;, &quot;vn&quot;);</span>
+<span class="fc" id="L122">        params.put(&quot;vnp_ReturnUrl&quot;, vnpayConfig.getVnpReturnUrl());</span>
+<span class="fc" id="L123">        params.put(&quot;vnp_IpAddr&quot;, ip);</span>
+
+<span class="fc" id="L125">        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&quot;yyyyMMddHHmmss&quot;);</span>
+<span class="fc" id="L126">        LocalDateTime now = LocalDateTime.now(ZoneId.of(&quot;Asia/Ho_Chi_Minh&quot;));</span>
+<span class="fc" id="L127">        params.put(&quot;vnp_CreateDate&quot;, now.format(formatter));</span>
+<span class="fc" id="L128">        params.put(&quot;vnp_ExpireDate&quot;, now.plusMinutes(15).format(formatter));</span>
+
+<span class="fc" id="L130">        String queryString = VnpayUtils.buildQueryString(params);</span>
+<span class="fc" id="L131">        String secureHash = VnpayUtils.hmacSHA512(vnpayConfig.getVnpHashSecret(), queryString);</span>
+
+<span class="fc" id="L133">        return vnpayConfig.getVnpPayUrl() + &quot;?&quot; + queryString + &quot;&amp;vnp_SecureHash=&quot; + secureHash;</span>
+    }
+
+    @Override
+    public Map&lt;String, String&gt; processIpn(Map&lt;String, String&gt; params) {
+<span class="fc" id="L138">        verifySignature(params);</span>
+
+<span class="fc" id="L140">        String orderId = params.get(&quot;vnp_TxnRef&quot;);</span>
+<span class="fc" id="L141">        Orders order = findOrderByTxnRef(orderId);</span>
+
+<span class="fc" id="L143">        long paidAmountMinorUnit = parseMinorUnitAmount(params.get(&quot;vnp_Amount&quot;));</span>
+<span class="fc" id="L144">        long expectedAmountMinorUnit = toMinorUnit(order.getTotalAmount());</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if (paidAmountMinorUnit != expectedAmountMinorUnit) {</span>
+<span class="nc" id="L146">            throw new VnpayException(VnpayErrorCode.INVALID_AMOUNT);</span>
+        }
+
+<span class="fc" id="L149">        synchronized (this) {</span>
+            // Idempotent guard: only pending orders can be updated once.
+<span class="fc" id="L151">            order = findOrderByTxnRef(orderId);</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">            if (!isPending(order.getStatus())) {</span>
+<span class="nc" id="L153">                throw new VnpayException(VnpayErrorCode.ORDER_ALREADY_PROCESSED);</span>
+            }
+
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">            boolean success = &quot;00&quot;.equals(params.get(&quot;vnp_ResponseCode&quot;))</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">                    &amp;&amp; &quot;00&quot;.equals(params.get(&quot;vnp_TransactionStatus&quot;));</span>
+
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">            ordersRepository.updateStatus(order.getOrderId(), success ? ORDER_STATUS_SUCCESS : ORDER_STATUS_FAILED);</span>
+<span class="fc" id="L160">        }</span>
+
+<span class="fc" id="L162">        return buildIpnResponse(&quot;00&quot;, &quot;Confirm Success&quot;);</span>
+    }
+
+    @Override
+    public void verifySignature(Map&lt;String, String&gt; params) {
+<span class="fc" id="L167">        String secureHash = params.get(&quot;vnp_SecureHash&quot;);</span>
+<span class="pc bpc" id="L168" title="2 of 4 branches missed.">        if (secureHash == null || secureHash.isBlank()) {</span>
+<span class="nc" id="L169">            log.warn(&quot;Missing vnp_SecureHash for request params: {}&quot;, params);</span>
+<span class="nc" id="L170">            throw new VnpayException(VnpayErrorCode.INVALID_SIGNATURE);</span>
+        }
+
+<span class="fc" id="L173">        TreeMap&lt;String, String&gt; signData = new TreeMap&lt;&gt;();</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry : params.entrySet()) {</span>
+<span class="fc" id="L175">            String key = entry.getKey();</span>
+<span class="fc" id="L176">            String value = entry.getValue();</span>
+<span class="pc bpc" id="L177" title="2 of 6 branches missed.">            if (!&quot;vnp_SecureHash&quot;.equals(key) &amp;&amp; !&quot;vnp_SecureHashType&quot;.equals(key)</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">                    &amp;&amp; value != null &amp;&amp; !value.isEmpty()) {</span>
+<span class="fc" id="L179">                signData.put(key, value);</span>
+            }
+<span class="fc" id="L181">        }</span>
+
+<span class="fc" id="L183">        String hashData = VnpayUtils.buildQueryString(signData);</span>
+<span class="fc" id="L184">        String calculatedHash = VnpayUtils.hmacSHA512(vnpayConfig.getVnpHashSecret(), hashData);</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        if (!calculatedHash.equalsIgnoreCase(secureHash)) {</span>
+<span class="fc" id="L186">            log.warn(&quot;Invalid VNPAY signature. expected={}, actual={}, data={}&quot;, calculatedHash, secureHash, hashData);</span>
+<span class="fc" id="L187">            throw new VnpayException(VnpayErrorCode.INVALID_SIGNATURE);</span>
+        }
+<span class="fc" id="L189">    }</span>
+
+    @Override
+    public Map&lt;String, Object&gt; processReturn(Map&lt;String, String&gt; params) {
+<span class="nc" id="L193">        verifySignature(params);</span>
+
+<span class="nc" id="L195">        String responseCode = params.getOrDefault(&quot;vnp_ResponseCode&quot;, &quot;&quot;);</span>
+<span class="nc" id="L196">        boolean success = &quot;00&quot;.equals(responseCode);</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        if (!success) {</span>
+<span class="nc" id="L198">            throw new VnpayException(VnpayErrorCode.PAYMENT_FAILED, &quot;Payment failed with code: &quot; + responseCode);</span>
+        }
+
+<span class="nc" id="L201">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L202">        result.put(&quot;orderId&quot;, params.get(&quot;vnp_TxnRef&quot;));</span>
+<span class="nc" id="L203">        result.put(&quot;amount&quot;, parseMinorUnitAmount(params.get(&quot;vnp_Amount&quot;)) / 100);</span>
+<span class="nc" id="L204">        result.put(&quot;transactionNo&quot;, params.get(&quot;vnp_TransactionNo&quot;));</span>
+<span class="nc" id="L205">        result.put(&quot;responseCode&quot;, responseCode);</span>
+<span class="nc" id="L206">        result.put(&quot;message&quot;, &quot;Payment success, waiting for IPN confirmation&quot;);</span>
+<span class="nc" id="L207">        result.put(&quot;success&quot;, true);</span>
+<span class="nc" id="L208">        return result;</span>
+    }
+
+    private Map&lt;String, String&gt; buildIpnResponse(String rspCode, String message) {
+<span class="fc" id="L212">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L213">        result.put(&quot;RspCode&quot;, rspCode);</span>
+<span class="fc" id="L214">        result.put(&quot;Message&quot;, message);</span>
+<span class="fc" id="L215">        return result;</span>
+    }
+
+    private long parseMinorUnitAmount(String amountRaw) {
+        try {
+<span class="fc" id="L220">            return Long.parseLong(amountRaw);</span>
+<span class="nc" id="L221">        } catch (Exception ex) {</span>
+<span class="nc" id="L222">            throw new VnpayException(VnpayErrorCode.INVALID_AMOUNT);</span>
+        }
+    }
+
+    private Orders findOrderByTxnRef(String txnRef) {
+        try {
+<span class="fc" id="L228">            int orderId = Integer.parseInt(txnRef);</span>
+<span class="fc" id="L229">            return ordersRepository.findById(orderId);</span>
+<span class="nc" id="L230">        } catch (Exception ex) {</span>
+<span class="nc" id="L231">            throw new VnpayException(VnpayErrorCode.ORDER_NOT_FOUND);</span>
+        }
+    }
+
+    private boolean isPending(String status) {
+<span class="pc bpc" id="L236" title="2 of 4 branches missed.">        return status != null &amp;&amp; ORDER_STATUS_PENDING.equalsIgnoreCase(status.trim());</span>
+    }
+
+    private long toMinorUnit(double amount) {
+        // VNPAY expects amount in smallest unit (value * 100), numeric only.
+<span class="fc" id="L241">        return BigDecimal.valueOf(amount)</span>
+<span class="fc" id="L242">                .multiply(BigDecimal.valueOf(100))</span>
+<span class="fc" id="L243">                .setScale(0, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L244">                .longValue();</span>
+    }
+
+    private long toMinorUnit(long amount) {
+<span class="fc" id="L248">        return amount * 100;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

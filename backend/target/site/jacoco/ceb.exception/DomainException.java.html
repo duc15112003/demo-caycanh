@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.exception</a> &gt; <span class="el_source">DomainException.java</span></div><h1>DomainException.java</h1><pre class="source lang-java linenums">package ceb.exception;
+
+import java.util.IllegalFormatException;
+
+public class DomainException extends RuntimeException {
+
+    private final ErrorCode errorCode;
+
+    private final transient Object[] args;
+
+    public DomainException(ErrorCode errorCode, Object... args) {
+<span class="fc" id="L12">        super(formatMessage(errorCode, args));</span>
+<span class="fc" id="L13">        this.errorCode = errorCode;</span>
+<span class="fc" id="L14">        this.args = args;</span>
+<span class="fc" id="L15">    }</span>
+
+    public DomainException(ErrorCode errorCode) {
+<span class="fc" id="L18">        super(errorCode.getMessage());</span>
+<span class="fc" id="L19">        this.errorCode = errorCode;</span>
+<span class="fc" id="L20">        this.args = null;</span>
+<span class="fc" id="L21">    }</span>
+
+    public DomainException(ErrorCode errorCode, Throwable cause) {
+<span class="fc" id="L24">        super(errorCode.getMessage(), cause);</span>
+<span class="fc" id="L25">        this.errorCode = errorCode;</span>
+<span class="fc" id="L26">        this.args = null;</span>
+<span class="fc" id="L27">    }</span>
+
+    public ErrorCode getErrorCode() {
+<span class="fc" id="L30">        return errorCode;</span>
+    }
+
+    public Object[] getArgs() {
+<span class="fc" id="L34">        return args;</span>
+    }
+
+    private static String formatMessage(ErrorCode errorCode, Object... args) {
+<span class="fc" id="L38">        String template = errorCode.getMessage();</span>
+<span class="pc bpc" id="L39" title="2 of 4 branches missed.">        if (args == null || args.length == 0) {</span>
+<span class="nc" id="L40">            return template;</span>
+        }
+
+        try {
+<span class="fc" id="L44">            return String.format(template, args);</span>
+<span class="nc" id="L45">        } catch (IllegalFormatException ex) {</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            if (args.length == 1) {</span>
+<span class="nc" id="L47">                return String.valueOf(args[0]);</span>
+            }
+<span class="nc" id="L49">            return template;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

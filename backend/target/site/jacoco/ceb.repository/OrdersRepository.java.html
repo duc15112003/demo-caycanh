@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrdersRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.repository</a> &gt; <span class="el_source">OrdersRepository.java</span></div><h1>OrdersRepository.java</h1><pre class="source lang-java linenums">package ceb.repository;
+
+import ceb.domain.model.Orders;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
+
+import java.sql.PreparedStatement;
+import java.util.List;
+import java.util.Objects;
+
+@Repository
+<span class="fc" id="L16">public class OrdersRepository {</span>
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    public int createOrder(Orders o) {
+<span class="fc" id="L22">        String sql = &quot;INSERT INTO Orders (UserId, Status, TotalAmount, ShippingAddress, Note) VALUES (?, ?, ?, ?, ?)&quot;;</span>
+<span class="fc" id="L23">        KeyHolder keyHolder = new GeneratedKeyHolder();</span>
+        
+<span class="fc" id="L25">        jdbc.update(connection -&gt; {</span>
+<span class="fc" id="L26">            PreparedStatement ps = connection.prepareStatement(sql, new String[]{&quot;orderid&quot;});</span>
+<span class="fc" id="L27">            ps.setInt(1, o.getUserId());</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">            ps.setString(2, o.getStatus() == null ? &quot;Chờ xử lý&quot; : o.getStatus());</span>
+<span class="fc" id="L29">            ps.setDouble(3, o.getTotalAmount());</span>
+<span class="fc" id="L30">            ps.setString(4, o.getShippingAddress());</span>
+<span class="fc" id="L31">            ps.setString(5, o.getNote());</span>
+<span class="fc" id="L32">            return ps;</span>
+        }, keyHolder);
+
+<span class="fc" id="L35">        return Objects.requireNonNull(keyHolder.getKey()).intValue();</span>
+    }
+
+    public Orders findById(int orderId) {
+<span class="fc" id="L39">        String sql = &quot;SELECT * FROM Orders WHERE OrderId = ?&quot;;</span>
+<span class="fc" id="L40">        return jdbc.queryForObject(sql, new BeanPropertyRowMapper&lt;&gt;(Orders.class), orderId);</span>
+    }
+
+    public List&lt;Orders&gt; findByUserId(int userId) {
+<span class="fc" id="L44">        String sql = &quot;SELECT * FROM Orders WHERE UserId = ? ORDER BY OrderDate DESC&quot;;</span>
+<span class="fc" id="L45">        return jdbc.query(sql, new BeanPropertyRowMapper&lt;&gt;(Orders.class), userId);</span>
+    }
+    public List&lt;Orders&gt; findAll() {
+<span class="fc" id="L48">        String sql = &quot;&quot;&quot;</span>
+            SELECT o.*, u.FullName 
+            FROM Orders o
+            JOIN Users u ON o.UserId = u.UserId
+            ORDER BY o.OrderDate DESC
+        &quot;&quot;&quot;;
+<span class="fc" id="L54">        return jdbc.query(sql, new BeanPropertyRowMapper&lt;&gt;(Orders.class));</span>
+    }
+    public void updateStatus(int orderId, String status) {
+<span class="fc" id="L57">        String sql = &quot;UPDATE Orders SET Status = ? WHERE OrderId = ?&quot;;</span>
+<span class="fc" id="L58">        jdbc.update(sql, status, orderId);</span>
+<span class="fc" id="L59">    }</span>
+    public void delete(int orderId) {
+<span class="fc" id="L61">        String sqlDetails = &quot;DELETE FROM OrderItems WHERE OrderId = ?&quot;;</span>
+<span class="fc" id="L62">        jdbc.update(sqlDetails, orderId);</span>
+<span class="fc" id="L63">        String sqlOrder = &quot;DELETE FROM Orders WHERE OrderId = ?&quot;;</span>
+<span class="fc" id="L64">        jdbc.update(sqlOrder, orderId);</span>
+<span class="fc" id="L65">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

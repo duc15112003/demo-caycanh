@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CartServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CayCanh</a> &gt; <a href="index.source.html" class="el_package">ceb.service.implement</a> &gt; <span class="el_source">CartServiceImpl.java</span></div><h1>CartServiceImpl.java</h1><pre class="source lang-java linenums">package ceb.service.implement;
+
+import java.util.List;
+
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.stereotype.Service;
+
+import ceb.domain.model.Cart;
+import ceb.domain.model.CartItem;
+import ceb.exception.CartItemNotFoundException;
+import ceb.exception.CartItemNotOwnedException;
+import ceb.exception.ProductNotFoundException;
+import ceb.exception.QuantityMustBePositiveException;
+import ceb.repository.CartItemsRepository;
+import ceb.repository.CartRepository;
+import ceb.repository.ProductsRepository;
+import ceb.service.service.CartService;
+
+@Service
+public class CartServiceImpl implements CartService {
+
+    private final CartRepository cartRepository;
+    private final CartItemsRepository cartItemsRepository;
+    private final ProductsRepository productsRepository;
+
+    public CartServiceImpl(
+            CartRepository cartRepository,
+            CartItemsRepository cartItemsRepository,
+<span class="fc" id="L29">            ProductsRepository productsRepository) {</span>
+<span class="fc" id="L30">        this.cartRepository = cartRepository;</span>
+<span class="fc" id="L31">        this.cartItemsRepository = cartItemsRepository;</span>
+<span class="fc" id="L32">        this.productsRepository = productsRepository;</span>
+<span class="fc" id="L33">    }</span>
+
+    @Override
+    public List&lt;CartItem&gt; getItems(int userId) {
+<span class="fc" id="L37">        int cartId = getOrCreateCartId(userId);</span>
+<span class="fc" id="L38">        return cartItemsRepository.findAll(cartId);</span>
+    }
+
+    @Override
+    public CartItem addItem(int userId, int productId, int quantity) {
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">        if (quantity &lt;= 0) {</span>
+<span class="nc" id="L44">            throw new QuantityMustBePositiveException();</span>
+        }
+
+        try {
+<span class="fc" id="L48">            productsRepository.findById(productId);</span>
+<span class="nc" id="L49">        } catch (EmptyResultDataAccessException ex) {</span>
+<span class="nc" id="L50">            throw new ProductNotFoundException(productId);</span>
+<span class="fc" id="L51">        }</span>
+
+<span class="fc" id="L53">        int cartId = getOrCreateCartId(userId);</span>
+<span class="fc" id="L54">        CartItem existingItem = cartItemsRepository.findItem(cartId, productId);</span>
+
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (existingItem == null) {</span>
+<span class="fc" id="L57">            cartItemsRepository.addItem(cartId, productId, quantity);</span>
+        } else {
+<span class="nc" id="L59">            cartItemsRepository.updateQuantity(existingItem.getCartItemId(), existingItem.getQuantity() + quantity);</span>
+        }
+
+<span class="fc" id="L62">        return cartItemsRepository.findItem(cartId, productId);</span>
+    }
+
+    @Override
+    public CartItem updateQuantity(int userId, int cartItemId, int quantity) {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (quantity &lt;= 0) {</span>
+<span class="fc" id="L68">            throw new QuantityMustBePositiveException();</span>
+        }
+
+<span class="fc" id="L71">        CartItem cartItem = getOwnedCartItem(userId, cartItemId);</span>
+<span class="fc" id="L72">        cartItemsRepository.updateQuantity(cartItemId, quantity);</span>
+<span class="fc" id="L73">        return cartItemsRepository.findById(cartItemId);</span>
+    }
+
+    @Override
+    public void removeItem(int userId, int cartItemId) {
+<span class="fc" id="L78">        getOwnedCartItem(userId, cartItemId);</span>
+<span class="fc" id="L79">        cartItemsRepository.delete(cartItemId);</span>
+<span class="fc" id="L80">    }</span>
+
+    @Override
+    public void clear(int userId) {
+<span class="fc" id="L84">        int cartId = getOrCreateCartId(userId);</span>
+<span class="fc" id="L85">        cartItemsRepository.clear(cartId);</span>
+<span class="fc" id="L86">    }</span>
+
+    @Override
+    public int getTotalQuantity(int userId) {
+<span class="fc" id="L90">        return getItems(userId).stream().mapToInt(CartItem::getQuantity).sum();</span>
+    }
+
+    @Override
+    public double getTotalAmount(int userId) {
+<span class="fc" id="L95">        return getItems(userId).stream()</span>
+<span class="fc" id="L96">                .mapToDouble(item -&gt; item.getQuantity() * item.getProduct().getPrice())</span>
+<span class="fc" id="L97">                .sum();</span>
+    }
+
+    private int getOrCreateCartId(int userId) {
+<span class="fc" id="L101">        Cart cart = cartRepository.getByUserId(userId);</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        return cart != null ? cart.getCartId() : cartRepository.createCart(userId);</span>
+    }
+
+    private CartItem getOwnedCartItem(int userId, int cartItemId) {
+<span class="fc" id="L106">        CartItem cartItem = cartItemsRepository.findById(cartItemId);</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (cartItem == null) {</span>
+<span class="nc" id="L108">            throw new CartItemNotFoundException(cartItemId);</span>
+        }
+
+<span class="fc" id="L111">        int cartId = getOrCreateCartId(userId);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (cartItem.getCartId() != cartId) {</span>
+<span class="fc" id="L113">            throw new CartItemNotOwnedException();</span>
+        }
+<span class="fc" id="L115">        return cartItem;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
