@@ -4,11 +4,13 @@ import { parseApiErrorDetails } from '../utils/errorCodes';
 import { logoutSuccess } from '../redux/slices/authSlice';
 import { API_BASE_URL } from '../config/apiConfig';
 
+const API_BASE_URL = "http://160.250.181.24:8080/api";
+
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
