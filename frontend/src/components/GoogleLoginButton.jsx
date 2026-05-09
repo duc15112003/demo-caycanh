@@ -6,7 +6,7 @@ const GoogleLoginButton = ({ disabled = false, className = "" }) => {
     if (disabled) {
       return;
     }
-    window.location.assign(`${API_ORIGIN}/oauth2/authorization/google`);
+    window.location.assign(`${API_ORIGIN}:8080/oauth2/authorization/google`);
   };
 
   return (

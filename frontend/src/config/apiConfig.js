@@ -1,7 +1,7 @@
 const DEFAULT_API_ORIGIN =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:8080'
-    : 'http://160.250.181.24';
+    : 'http://160.250.181.24:8080';
 
 const normalizeUrl = (url) => url.replace(/\/+$/, '');
 
