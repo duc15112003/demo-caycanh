@@ -6,10 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="e4680544-e82f-46b1-8131-91cba5662d2f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ceb/controller/ProductsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ceb/controller/ProductsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/public/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/public/config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/api/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/api/api.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/api/axiosClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/api/axiosClient.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/components/GoogleLoginButton.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/GoogleLoginButton.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/config/apiConfig.js" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/config/apiConfig.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +69,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="JUnit.CayCanhApplicationTests">
+  <component name="RunManager" selected="Spring Boot.CayCanhApplication">
     <configuration name="CayCanhApplicationTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="CayCanh" />
       <extension name="coverage">
@@ -179,6 +182,8 @@
       <workItem from="1778082623751" duration="543000" />
       <workItem from="1778303014150" duration="192000" />
       <workItem from="1778306617793" duration="754000" />
+      <workItem from="1778339145081" duration="84000" />
+      <workItem from="1778343356176" duration="164000" />
     </task>
     <servers />
   </component>
